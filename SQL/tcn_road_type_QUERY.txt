@@ -1,0 +1,11 @@
+-- Combination for mapping purposes.
+tcn_road_type IN ( 'arterial' , 'collector' , 'freeway' , 'highway' , 'Highway' ) AND road_generation = 'e' AND is_standard IN ('T','t') AND boundary_set_id = 8
+
+-- Minor Roads. 'boundary_set_id' removes NULL values, roads outside of BC (e.g. Yukon)
+tcn_road_type IN ( 'lane', 'local', 'recreation', 'resource', 'strata', 'service') AND is_standard IN ('T', 't') AND boundary_set_id = 8
+
+-- Major Roads 
+tcn_road_type IN ( 'arterial', 'collector', 'ramp') AND is_standard IN ('T', 't') AND boundary_set_id = 8
+
+-- Highways
+tcn_road_type IN ( 'highway', 'freeway') AND is_standard IN ('T', 't') AND boundary_set_id = 8

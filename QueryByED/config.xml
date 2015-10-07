@@ -1,0 +1,12 @@
+<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>QueryByED</Name><AddInID>{86d510b5-e2e2-4ff1-8916-f1b52f11d62b}</AddInID><Description>Used in conjunction with Data Driven Pages to build and apply specific queries automatically.</Description><Version>1.0</Version><Image>Images\spatialQuery.png</Image><Author>JStephaniuk</Author><Company>BC-EBC</Company><Date>06/24/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="QueryByED_addin.py" namespace="QueryByED_addin"><ArcMap>
+    <Commands>
+        <Button caption="Query Points By ED" category="QueryByED" class="QueryPointsByED" id="QueryByED_addin.button" image="Images\EDHighlight.png" message="When pressed, specific points for current data driven page will be displayed while points outside current page removed." tip="Query Points By ED"><Help heading="See James for help">If he doesn't work here anymore figure it out yourself.</Help></Button>
+        </Commands>
+    <Extensions>
+        </Extensions>
+    <Toolbars>
+        <Toolbar caption="Query By ED" category="QueryByED" id="QueryByED_addin.toolbar" showInitially="true"><Items><Button refID="QueryByED_addin.button" /></Items></Toolbar>
+        </Toolbars>
+    <Menus>
+        </Menus>
+    </ArcMap></AddIn></ESRI.Configuration>
