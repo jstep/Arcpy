@@ -1,2 +1,0 @@
-# Arcpy
-ESRI Arcpy scripts.
