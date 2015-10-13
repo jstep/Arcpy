@@ -69,6 +69,36 @@ class LoadFGDBs(object):
                     fetchFGDB(df, "Inset 1 Anno GDBs")    
                 elif "Inset2" in df.name:
                     fetchFGDB(df, "Inset 2 Anno GDBs")
+                elif "Inset3" in df.name:
+                    fetchFGDB(df, "Inset 3 Anno GDBs")
+                elif "Inset4" in df.name:
+                    fetchFGDB(df, "Inset 4 Anno GDBs")
+                elif "Inset5" in df.name:
+                    fetchFGDB(df, "Inset 5 Anno GDBs")
+                elif "Inset6" in df.name:
+                    fetchFGDB(df, "Inset 6 Anno GDBs")
+                elif "Inset7" in df.name:
+                    fetchFGDB(df, "Inset 7 Anno GDBs")
+                elif "Inset8" in df.name:
+                    fetchFGDB(df, "Inset 8 Anno GDBs")
+                elif "Inset9" in df.name:
+                    fetchFGDB(df, "Inset 9 Anno GDBs")
+                elif "Inset10" in df.name:
+                    fetchFGDB(df, "Inset 10 Anno GDBs")
+                elif "Inset11" in df.name:
+                    fetchFGDB(df, "Inset 11 Anno GDBs")
+                elif "Inset12" in df.name:
+                    fetchFGDB(df, "Inset 12 Anno GDBs")
+                elif "Inset13" in df.name:
+                    fetchFGDB(df, "Inset 13 Anno GDBs")
+                elif "Inset14" in df.name:
+                    fetchFGDB(df, "Inset 14 Anno GDBs")
+                elif "Inset15" in df.name:
+                    fetchFGDB(df, "Inset 15 Anno GDBs")
+                elif "Inset16" in df.name:
+                    fetchFGDB(df, "Inset 16 Anno GDBs")
+
+
         except IndexError:
             pass
 
