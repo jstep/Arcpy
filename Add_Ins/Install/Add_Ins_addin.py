@@ -11,16 +11,18 @@ class LoadFGDBs(object):
         self.checked = False
     def onClick(self):
 
-        import arcpy
-        import json
-        import os
-        import pythonaddins
-        import sys
+        def fetchFGDB(df, dfFolder):
+            """Function to retrieve annotation file geodatabase for current ddp enabled map.\n
+            Args:
+              df (DataFrame object): A variable that references a DataFrame object.\n
+              dfFolder (String): Name of folder containing file geodatabases.\n
 
-        def fetchFGDB(df, fgdb):
-            """Function to retrieve annotation file geodatabase for ddp enabled current map."""
+            Returns:
+              None: Returns NoneType.
+
+            """
             dfScale = int(round(df.scale))
-            arcpy.env.workspace =  os.path.join(baseDir, fgdb)
+            arcpy.env.workspace =  os.path.join(baseDir, dfFolder)
             targetGDB = arcpy.ListFiles(pageName + "*" )[0] # + str(dfScale) + "*" ### Only list files that start with current edabbr and end in dataframe's scale.
             workspace = os.path.join(arcpy.env.workspace, targetGDB) 
             walk = arcpy.da.Walk(workspace) 
@@ -33,6 +35,7 @@ class LoadFGDBs(object):
                   target_group = arcpy.mapping.ListLayers(mxd, "Anno*", df)[0]
                   arcpy.mapping.AddLayerToGroup(df, target_group, annoLyr, "TOP") 
                   # del temp_layer
+            return None
 
 
         ########################################################################################
