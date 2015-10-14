@@ -24,13 +24,13 @@ class CMYK288dpi(object):
     
             # Logic to determine orientation of page.
             if mxd.pageSize.width == 72.0 and mxd.pageSize.height == 72.0:
-                orient = "4up"
+                orient = "4sheet"
             elif mxd.pageSize.width == 36.0 and mxd.pageSize.height == 36.0:
-                orient = "1up"
+                orient = "1sheet"
             elif mxd.pageSize.width == 72.0 and mxd.pageSize.height == 36.0:
-                orient = "2up_horizontal"
+                orient = "2sheet_horizontal"
             elif mxd.pageSize.width == 36.0 and mxd.pageSize.height == 72.0:
-                orient = "2up_vertical"
+                orient = "2sheet_vertical"
             else :
                 orient = ""
     
@@ -67,13 +67,13 @@ class RGB144dpi(object):
     
             # Logic to determine orientation of page.
             if mxd.pageSize.width == 72.0 and mxd.pageSize.height == 72.0:
-                orient = "4up"
+                orient = "4sheet"
             elif mxd.pageSize.width == 36.0 and mxd.pageSize.height == 36.0:
-                orient = "1up"
+                orient = "1sheet"
             elif mxd.pageSize.width == 72.0 and mxd.pageSize.height == 36.0:
-                orient = "2up_horizontal"
+                orient = "2sheet_horizontal"
             elif mxd.pageSize.width == 36.0 and mxd.pageSize.height == 72.0:
-                orient = "2up_vertical"
+                orient = "2sheet_vertical"
             else :
                 orient = ""
     

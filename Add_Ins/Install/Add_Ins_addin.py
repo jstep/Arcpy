@@ -2,7 +2,6 @@ import arcpy
 import json
 import os
 import pythonaddins
-import sys
 
 class LoadFGDBs(object):
     """Implementation for Add_Ins_addin.button_3 (Button)"""
@@ -11,18 +10,18 @@ class LoadFGDBs(object):
         self.checked = False
     def onClick(self):
 
-        def fetchFGDB(df, dfFolder):
+        def fetchFGDB(df, baseDirectory, dfName):
             """Function to retrieve annotation file geodatabase for current ddp enabled map.\n
             Args:
               df (DataFrame object): A variable that references a DataFrame object.\n
-              dfFolder (String): Name of folder containing file geodatabases.\n
+              dfName (String): Name of data frame to locate folder containing file geodatabases.\n
 
             Returns:
               None: Returns NoneType.
 
             """
-            dfScale = int(round(df.scale))
-            arcpy.env.workspace =  os.path.join(baseDir, dfFolder)
+            # dfScale = int(round(df.scale))
+            arcpy.env.workspace =  os.path.join(baseDirectory, dfName + " Anno GDBs")
             targetGDB = arcpy.ListFiles(pageName + "*" )[0] # + str(dfScale) + "*" ### Only list files that start with current edabbr and end in dataframe's scale.
             workspace = os.path.join(arcpy.env.workspace, targetGDB) 
             walk = arcpy.da.Walk(workspace) 
@@ -46,6 +45,8 @@ class LoadFGDBs(object):
         pageNameField = ddp.pageNameField.name # edabbr
         dfLst = arcpy.mapping.ListDataFrames(mxd)
 
+        baseDir = r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs"
+
         # Environment settings.
         arcpy.env.overwriteOutput = True
         arcpy.env.addOutputsToMap = False
@@ -58,48 +59,11 @@ class LoadFGDBs(object):
             for lyr in group:
                 arcpy.mapping.RemoveLayer(df,lyr)
 
-        # baseDir = r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs"
-        baseDir = r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs"
-
         try:
+            # Execute fetchFGDB on each data frame.
             for df in dfLst:
-                if "mainDF" in df.name:
-                    fetchFGDB(df, "MDF Anno GDBs")
-                elif "Inset1" in df.name:
-                    fetchFGDB(df, "Inset 1 Anno GDBs")    
-                elif "Inset2" in df.name:
-                    fetchFGDB(df, "Inset 2 Anno GDBs")
-                elif "Inset3" in df.name:
-                    fetchFGDB(df, "Inset 3 Anno GDBs")
-                elif "Inset4" in df.name:
-                    fetchFGDB(df, "Inset 4 Anno GDBs")
-                elif "Inset5" in df.name:
-                    fetchFGDB(df, "Inset 5 Anno GDBs")
-                elif "Inset6" in df.name:
-                    fetchFGDB(df, "Inset 6 Anno GDBs")
-                elif "Inset7" in df.name:
-                    fetchFGDB(df, "Inset 7 Anno GDBs")
-                elif "Inset8" in df.name:
-                    fetchFGDB(df, "Inset 8 Anno GDBs")
-                elif "Inset9" in df.name:
-                    fetchFGDB(df, "Inset 9 Anno GDBs")
-                elif "Inset10" in df.name:
-                    fetchFGDB(df, "Inset 10 Anno GDBs")
-                elif "Inset11" in df.name:
-                    fetchFGDB(df, "Inset 11 Anno GDBs")
-                elif "Inset12" in df.name:
-                    fetchFGDB(df, "Inset 12 Anno GDBs")
-                elif "Inset13" in df.name:
-                    fetchFGDB(df, "Inset 13 Anno GDBs")
-                elif "Inset14" in df.name:
-                    fetchFGDB(df, "Inset 14 Anno GDBs")
-                elif "Inset15" in df.name:
-                    fetchFGDB(df, "Inset 15 Anno GDBs")
-                elif "Inset16" in df.name:
-                    fetchFGDB(df, "Inset 16 Anno GDBs")
-
-
-        except IndexError:
+                fetchFGDB(df, baseDir, df.name)
+        except:
             pass
 
 
@@ -193,9 +157,9 @@ class ResetLayout(object):
         insetDF_lst = arcpy.mapping.ListDataFrames(mxd, "*Inset*")
         mapElem_lst = arcpy.mapping.ListLayoutElements(mxd,"MAPSURROUND_ELEMENT") + arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT")
         
-        # Assign unique names to text elements. Zero-based.
+        # Append parent data frame name to map surround elements and text elements.
         for index, elem in enumerate(mapElem_lst):
-        	elem.name = str(index)
+        	elem.name += str(elem.parentDataFrameName)
         	
         # Resets main dataframe to either landscape or protrait based on longer axis. 
         if mxd.pageSize[1] > mxd.pageSize[0]:
@@ -223,10 +187,10 @@ class ResetLayout(object):
             dataFrame.extent = insetExtent_2
 
         # Resets Map Surround Elements.
-        # for index, mapElem in enumerate(mapElem_lst):
-        #     element = mapElem_lst[index]
-        #     element.elementPositionX = -2.5 - int(index)
-        #     element.elementPositionY = 5.0
+        for index, mapElem in enumerate(mapElem_lst):
+            element = mapElem_lst[index]
+            element.elementPositionX = -2.5 - int(index)
+            element.elementPositionY = 5.0
 
 class RestoreLayout(object):
     """Implementation for Add_Ins_addin.button_2 (Button)"""
@@ -242,7 +206,8 @@ class RestoreLayout(object):
             try:
               df = arcpy.mapping.ListDataFrames(mxd, dfName)[0]
               nArrow = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*")[dfIndex]
-              scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale*")[dfIndex]
+              scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale text*")[dfIndex]
+              scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale bar*")[dfIndex]
 
               df.elementPositionX        = rowInfo[0]
               df.elementPositionY        = rowInfo[1]
@@ -264,6 +229,10 @@ class RestoreLayout(object):
               scaleText.elementHeight    = rowInfo[15]
               scaleText.elementPositionX = rowInfo[16]
               scaleText.elementPositionY = rowInfo[17]
+              scaleBar.elementWidth     = rowInfo[18]
+              scaleBar.elementHeight    = rowInfo[19]
+              scaleBar.elementPositionX = rowInfo[20]
+              scaleBar.elementPositionY = rowInfo[21]
             except IndexError:
               pass
           except ValueError:
