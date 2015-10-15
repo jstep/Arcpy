@@ -87,7 +87,8 @@ class RecordLayout(object):
 
     	def setDF(dfIndex, df):
     	  """Function used to create a list of a data frame's position, dimensions, extent, scale, rotation, north arrow height/position, and scale text/bar height/position. Scale is rounded to nearest 100."""
-    	  northArrow = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*")[dfIndex]
+          nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
+          northArrow = nArrowLst[dfIndex]
     	  scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale Text*")[dfIndex]
     	  scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale Bar*")[dfIndex]
     	  fieldValue = "[" + \
@@ -122,7 +123,7 @@ class RecordLayout(object):
 
     	    #Set Data Frame information
     	    for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):
-    	      if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
+    	      # if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
     	        pageInsertRow.setValue(df.name, setDF(dfIndex, df)) # Data frame name must match P.L.E. column name in order to write to it.
     	         
     	    pageInsertCursor.insertRow(pageInsertRow)
@@ -134,7 +135,7 @@ class RecordLayout(object):
 
     	    #Set Data Frame information
     	    for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):
-    	      if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
+    	      # if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
     	        pageUpdateRow.setValue(df.name, setDF(dfIndex, df)) # Data frame name must match P.L.E. column name in order to write to it.
     	               
     	    
@@ -152,15 +153,11 @@ class ResetLayout(object):
     def onClick(self):
         mxd = arcpy.mapping.MapDocument("CURRENT")
 
-        # dfs_lst = arcpy.mapping.ListDataFrames(mxd) # List of all dataframes. MainDF and Insets.
         mainDF = arcpy.mapping.ListDataFrames(mxd)[0]
         insetDF_lst = arcpy.mapping.ListDataFrames(mxd, "*Inset*")
-        mapElem_lst = arcpy.mapping.ListLayoutElements(mxd,"MAPSURROUND_ELEMENT") + arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT")
-        
-        # Append parent data frame name to map surround elements and text elements.
-        for index, elem in enumerate(mapElem_lst):
-        	elem.name += str(elem.parentDataFrameName)
-        	
+        mapElem_lst = arcpy.mapping.ListLayoutElements(mxd,"MAPSURROUND_ELEMENT", "*SCALE*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT")
+
+        # TODO: GENERALIZE OR SET FOR EDVA MAPS.
         # Resets main dataframe to either landscape or protrait based on longer axis. 
         if mxd.pageSize[1] > mxd.pageSize[0]:
             # Portrait - 3/4 inch top/bottom padding, 1/2 inch left/right padding.
@@ -200,12 +197,13 @@ class RestoreLayout(object):
     def onClick(self):
 
         def arrangeDFs(row, dfIndex, dfName):
-        """Function that arranges data frames based on the field info within the PageLayoutElements table. List order must match setDF order."""          
+          """Function that arranges data frames based on the field info within the PageLayoutElements table. List order must match setDF order."""          
           try:
             rowInfo = json.loads(row.getValue(dfName))
             try:
               df = arcpy.mapping.ListDataFrames(mxd, dfName)[0]
-              nArrow = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*")[dfIndex]
+              nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
+              nArrow = nArrowLst[dfIndex]
               scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale text*")[dfIndex]
               scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale bar*")[dfIndex]
 
@@ -229,10 +227,10 @@ class RestoreLayout(object):
               scaleText.elementHeight    = rowInfo[15]
               scaleText.elementPositionX = rowInfo[16]
               scaleText.elementPositionY = rowInfo[17]
-              scaleBar.elementWidth     = rowInfo[18]
-              scaleBar.elementHeight    = rowInfo[19]
-              scaleBar.elementPositionX = rowInfo[20]
-              scaleBar.elementPositionY = rowInfo[21]
+              scaleBar.elementWidth      = rowInfo[18]
+              scaleBar.elementHeight     = rowInfo[19]
+              scaleBar.elementPositionX  = rowInfo[20]
+              scaleBar.elementPositionY  = rowInfo[21]
             except IndexError:
               pass
           except ValueError:
@@ -241,15 +239,18 @@ class RestoreLayout(object):
 
         ################################################################################
 
-        #Reference MXD
-        mxd = arcpy.mapping.MapDocument("CURRENT")  #CURRENT.
+        # Reference MXD
+        mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
         pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
         pageNameField = ddp.pageNameField.name # edabbr
         #Reference pageLayoutTable
         pageLayoutTable = arcpy.mapping.ListTableViews(mxd, "PageLayoutElements")[0]
 
-        #Move all data frames off the layout and into their default positions
+        # Reset all data frames and layout elements.
+        reset = ResetLayout()
+        reset.onClick()
+
         pageLayoutCursor = arcpy.SearchCursor(pageLayoutTable.dataSource, "\"" + pageNameField + "\" = '" + pageName + "'")
         pageLayoutRow = pageLayoutCursor.next()
         for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):
