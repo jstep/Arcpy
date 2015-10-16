@@ -74,17 +74,6 @@ class RecordLayout(object):
         self.checked = False
     def onClick(self):
 
-    	#Reference mxd, ddp objects.
-    	mxd = arcpy.mapping.MapDocument("CURRENT")
-    	ddp = mxd.dataDrivenPages
-    	pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # E.g. ABM
-    	pageNameField = ddp.pageNameField.name # edabbr
-
-    	# Assign a unique to each element of the MXD.
-    	# mxd = arcpy.mapping.ListLayoutElements(mxd)
-    	# for index, elem in enumerate(layoutElems):
-    	#   elem.name = str(index)
-
     	def setDF(dfIndex, df):
     	  """Function used to create a list of a data frame's position, dimensions, extent, scale, rotation, north arrow height/position, and scale text/bar height/position. Scale is rounded to nearest 100."""
           nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
@@ -107,6 +96,17 @@ class RecordLayout(object):
     	    
     	  ##################################################################################
 
+
+        #Reference mxd, ddp objects.
+        mxd = arcpy.mapping.MapDocument("CURRENT")
+        ddp = mxd.dataDrivenPages
+        pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # E.g. ABM
+        pageNameField = ddp.pageNameField.name # edabbr
+
+        # Assign a unique to each element of the MXD.
+        # mxd = arcpy.mapping.ListLayoutElements(mxd)
+        # for index, elem in enumerate(layoutElems):
+        #   elem.name = str(index)
 
     	confirm = pythonaddins.MessageBox('Are you sure you want to save the page layout?\nPrevious data will be lost','Save Layout Confirmation', 4)
     	if confirm == 'Yes':
@@ -231,11 +231,14 @@ class RestoreLayout(object):
               scaleBar.elementHeight     = rowInfo[19]
               scaleBar.elementPositionX  = rowInfo[20]
               scaleBar.elementPositionY  = rowInfo[21]
+
+              del rowInfo, nArrowLst, nArrow, scaleText, scaleBar, df, newExtent
+
             except IndexError:
               pass
           except ValueError:
             pass
-
+          return None  
 
         ################################################################################
 

@@ -29,12 +29,17 @@ def exporter(colorspace, dpi, outDir):
     except AttributeError:
         pythonaddins.MessageBox("Data Driven Pages must be enabled for button to function", "DDP not enabled")
 
+###############################################################################################################################
+
+# Button Classes.
+
 class CMYK288(object):
     """Implementation for PDF_Export_Addin_addin.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
+        # Call to exporter function.
         exporter("CMYK", 288, r"C:\Users\jastepha\Desktop\tmp")
 
 class RGB144(object):
@@ -43,5 +48,6 @@ class RGB144(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
+        # Call to exporter function.
         exporter("RGB", 144, r"C:\Users\jastepha\Desktop\tmp")
         
