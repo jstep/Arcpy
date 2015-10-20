@@ -6,6 +6,7 @@ import arcpy
 # Populates and aligns a graphic box with data from an shapefile attribute table.
 
 mxd = arcpy.mapping.MapDocument("CURRENT")
+# Feature class name.
 mapLyr = arcpy.mapping.ListLayers(mxd,"SVAs_Internal_LabelsAnno*")[0]
 
 # SVA container (graphic box) name.
@@ -69,3 +70,5 @@ svaBox.elementWidth = txtElem3.elementPositionX - svaElem.elementPositionX + txt
 svaBox.elementPositionX = svaElem.elementPositionX - padding
 svaBox.elementPositionY = svaElem.elementPositionY - padding
 
+# SVA Box title.
+# svaBox.elementHeight += 0.5
