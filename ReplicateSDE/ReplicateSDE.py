@@ -120,9 +120,13 @@ if __name__ == "__main__":
     """Change these variables to the location of the database being copied, the target 
     database location, and where you want the log to be stored"""
 
-    logPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "replicateSDE_Logfiles") # current location of .py file.
+    # Log files folder will be created at same directory level as script. 
+    logPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "replicateSDE_Logfiles")
+    if not os.path.exists(logPath):
+        os.makedirs(logPath)
+
     databaseConnection = "PATH TO YOUR SDE CONNECTION FILE."
-    targetGDB = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Replicated.gdb")
+    targetGDB = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Replicated" + str(now.strftime("_%Y-%m-%d_%H-%M-%S")) + ".gdb") # current location of this python file.
 
     ############################### logging items ###################################
     # Layer name list.
