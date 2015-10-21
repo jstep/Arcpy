@@ -151,8 +151,10 @@ if __name__ == "__main__":
     log.addHandler(h1)
     log.addHandler(h2)
 
+    log.info('----------------------------------------------------')
     log.info('Script: {0}'.format(os.path.basename(sys.argv[0])))
-
+    log.info('----------------------------------------------------')
+    
     try:
         ########################## function calls ######################################
 
