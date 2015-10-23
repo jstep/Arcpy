@@ -6,6 +6,9 @@ mxd = arcpy.mapping.MapDocument('CURRENT')
 lyrLst = arcpy.mapping.ListLayers(mxd)
 
 for lyr in lyrLst:
-	if lyr.isBroken:
-		mxd.findAndReplaceWorkspacePaths(lyr.workspacePath, r"C:\Users\jastepha\Desktop\testOutput\cat\bar\baz", True)
+    if lyr.supports("WORKSPACEPATH"):
+        if lyr.isBroken:
+            mxd.findAndReplaceWorkspacePaths(lyr.workspacePath, r"C:\Users\jastepha\Desktop\testOutput\cat\bar\baz", True)
+            print "Layer {} repaired.".format(lyr.name)
+
 arcpy.RefreshTOC()

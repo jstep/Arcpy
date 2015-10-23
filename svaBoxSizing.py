@@ -48,7 +48,7 @@ elemLst = [svaElem,addrElem, txtElem2, txtElem3]
 # Captions cannot be empty therefore a single char (space). Set all font sizes to same.
 for elem in elemLst:
 	elem.text = " "
-	elem.fontSize = fontSize
+	#elem.fontSize = fontSize ### TODO
 
 # Create columns.
 rows = arcpy.SearchCursor(mapLyr.dataSource)
