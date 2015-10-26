@@ -13,7 +13,7 @@ mapLyr = arcpy.mapping.ListLayers(mxd,"SVAs_Internal_LabelsAnno*")[0]
 svaBox = "svaBox"
 
 # Graphic box layout settings.
-fontSize = 10.0
+# fontSize = 10.0
 padding = 0.2
 spacer = 0.1
 
