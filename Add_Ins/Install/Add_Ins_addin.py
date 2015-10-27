@@ -275,51 +275,6 @@ class RestoreLayout(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-
-        def arrangeDFs(row, dfIndex, dfName):
-          """Function that arranges data frames based on the field info within the PageLayoutElements table. List order must match setDF order."""          
-          try:
-            rowInfo = json.loads(row.getValue(dfName))
-
-            df = arcpy.mapping.ListDataFrames(mxd, dfName)[0]
-            nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
-            nArrow = nArrowLst[dfIndex]
-            scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale text*")[dfIndex]
-            scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale bar*")[dfIndex]
-
-            df.elementPositionX        = rowInfo[0]
-            df.elementPositionY        = rowInfo[1]
-            df.elementWidth            = rowInfo[2]
-            df.elementHeight           = rowInfo[3]
-            newExtent                  = df.extent
-            newExtent.XMin             = rowInfo[4]
-            newExtent.YMin             = rowInfo[5]
-            newExtent.XMax             = rowInfo[6]
-            newExtent.YMax             = rowInfo[7]
-            df.extent                  = newExtent
-            df.scale                   = rowInfo[8]
-            df.rotation                = rowInfo[9]
-            nArrow.elementWidth        = rowInfo[10]
-            nArrow.elementHeight       = rowInfo[11]
-            nArrow.elementPositionX    = rowInfo[12]
-            nArrow.elementPositionY    = rowInfo[13]
-            scaleText.elementWidth     = rowInfo[14]
-            scaleText.elementHeight    = rowInfo[15]
-            scaleText.elementPositionX = rowInfo[16]
-            scaleText.elementPositionY = rowInfo[17]
-            scaleBar.elementWidth      = rowInfo[18]
-            scaleBar.elementHeight     = rowInfo[19]
-            scaleBar.elementPositionX  = rowInfo[20]
-            scaleBar.elementPositionY  = rowInfo[21]
-
-            del rowInfo, nArrowLst, nArrow, scaleText, scaleBar, df, newExtent
-          except Exception as e:
-            pythonaddins.MessageBox(e, "Error Message")
-            print e
-          return None  
-
-        ################################################################################
-
         # Reference MXD
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
