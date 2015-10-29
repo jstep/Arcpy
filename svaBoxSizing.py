@@ -6,8 +6,12 @@ import arcpy
 # Populates and aligns a graphic box with data from an shapefile attribute table.
 
 mxd = arcpy.mapping.MapDocument("CURRENT")
+ddp = mxd.dataDrivenPages
+pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # e.g. VMP
+pageNameField = ddp.pageNameField.name # edabbr
+
 # Feature class name.
-mapLyr = arcpy.mapping.ListLayers(mxd,"PUT_NAME_OF_LAYER_WITH_SVA_INFO_HERE")[0]
+mapLyr = arcpy.mapping.ListLayers(mxd,"SVAs")[0]
 
 # SVA container (graphic box) name. Match this name to the SVA Box element name in ArcMap.
 svaBox = "svaBox"
@@ -17,11 +21,12 @@ padding = 0.2 # Distance (in inches) around edge of box to inner elements.
 spacer = 0.1  # Distance (in inches) between inner elements.
 
 # SVA source feature class field names. Add the field names from the layer that you want to populate the SVA Table.
-svaTxtField  = "FIELD_NAME"
-facilityName = "FIELD_NAME"
-addrNo       = "FIELD_NAME"
-addrName     = "FIELD_NAME"
-city         = "FIELD_NAME"
+svaTxtField  = "va"
+facilityName = "sectname"
+addrNo       = "bldgstart"
+addrName     = "stdaddr"
+city         = "city_1"
+fieldLst = [svaTxtField, facilityName, addrNo, addrName, city]
 
 # SVA text element names. Match these names to the element names in ArcMap.
 SVATitleText  = "SVATitle"
@@ -51,17 +56,20 @@ for elem in elemLst:
 	elem.text = " "
 
 # Populate columns.
-rows = arcpy.SearchCursor(mapLyr.dataSource)
+whereClause = "ed = "+ "'" + pageName + "'"
+rows = sorted(arcpy.da.SearchCursor(mapLyr.dataSource, fieldLst, whereClause))
+
 for row in rows:
-	svaTxtElem.text  += "{}\n".format(row.getValue(svaTxtField))
-	facTxtElem.text  += "{}\n".format(row.getValue(facilityName))
-	addrTxtElem.text += "{} ".format(row.getValue(addrNo))
-	addrTxtElem.text += "{}\n".format(row.getValue(addrName))
-	cityTxtElem.text += "{}\n".format(row.getValue(city))
+	svaTxtElem.text  += "{}\n".format(row[0])
+	facTxtElem.text  += "{}\n".format(row[1])
+	addrTxtElem.text += "{} ".format(row[2])
+	addrTxtElem.text += "{}\n".format(row[3])
+	cityTxtElem.text += "{}\n".format(row[4])
 
 # Slice off leading space char.
 for elem in elemLst:
 	elem.text = elem.text[1:]
+	elem.text = '\n'.join(' '.join(line.split()) for line in elem.text.split('\n')) # Removes two or more spaces. Splits text into lines. Then splits each line by whitespace and rejoins with single spaces. Then rejoins the lines.
 
 svaBox = arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", svaBox)[0]
 
@@ -101,3 +109,6 @@ colsWidths = widthCol1 + widthCol2 + widthCol3 + widthCol4
 textWidth = colsWidths + (spacer * 3)
 svaBox.elementHeight = tallestTxtElem + tallestTitleElem + mainTitle.elementHeight + (padding * 2)
 svaBox.elementWidth = max(textWidth, mainTitle.elementWidth) + (padding * 2)
+
+# Centre the main title.
+mainTitle.elementPositionX = svaTxtElem.elementPositionX + (textWidth / 2) - (mainTitle.elementWidth / 2 )
