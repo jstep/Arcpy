@@ -107,8 +107,21 @@ tallestTxtElem = max(svaTxtElem.elementHeight, facTxtElem.elementHeight, addrTxt
 tallestTitleElem = max(svaTitle.elementHeight, facTitle.elementHeight, addrTitle.elementHeight, cityTitle.elementHeight)
 colsWidths = widthCol1 + widthCol2 + widthCol3 + widthCol4
 textWidth = colsWidths + (spacer * 3)
-svaBox.elementHeight = tallestTxtElem + tallestTitleElem + mainTitle.elementHeight + (padding * 2)
-svaBox.elementWidth = max(textWidth, mainTitle.elementWidth) + (padding * 2)
+svaBox.elementHeight = tallestTxtElem + tallestTitleElem + mainTitle.elementHeight + (padding * 2) + spacer # Height of all elements, spacers, and padding.
+svaBox.elementWidth = max(textWidth, mainTitle.elementWidth) + (padding * 2) # Width of all elements, spacers, and padding.
 
 # Centre the main title.
 mainTitle.elementPositionX = svaTxtElem.elementPositionX + (textWidth / 2) - (mainTitle.elementWidth / 2 )
+
+# Contrived way to remove duplicates from SVA text column. If you have a better way I'd like to see it.
+splitLst = svaTxtElem.text.split()
+setSplititLst = list(set(svaTxtElem.text.split()))
+
+for i, item in enumerate(splitLst):
+    if item in setSplititLst:
+        setSplititLst.remove(item)
+    else:
+        splitLst[i] =  splitLst[i].replace(splitLst[i], len(splitLst[i]) * " ")
+
+joinedText = "\n".join(splitLst)
+svaTxtElem.text = joinedText
