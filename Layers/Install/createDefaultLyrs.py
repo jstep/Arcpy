@@ -3,7 +3,6 @@ import os
 import pythonaddins
 
 arcpy.env.overwriteOutput = True
-# arcpy.env.workspace = r"P:\15045 - ED Redistribution - Event Specific\R2015\21-Electoral_Boundaries_Commission_Support_Doc\WBS 8 - Geography\Mapping\Layer_Packages_for_PDF_Notes-Changes\Default_Layers"
 arcpy.env.workspace = pythonaddins.OpenDialog("Select location to save default layers", False, os.path.basename, "Select Folder")
 workspace = arcpy.env.workspace
 os.chdir(workspace)

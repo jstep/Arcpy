@@ -1,10 +1,16 @@
 import arcpy
-import pythonaddins
 import os
+import pythonaddins
 
 def autoPath(folderName="Layerfiles"):
+    """Returns a workspace path one level above the MXD's current directory, 
+    and sets the current workspace to that directory. Creates a folder with 
+    name equal to parameter, if it does not already exist. 
+    Parameters: Folder name. Default parameter is 'Layerfiles'.
+    """
     # Create a 'folderName' folder in parent folder.
-    currentDir = os.path.dirname(os.path.realpath(__file__))
+    mxd = arcpy.mapping.MapDocument('CURRENT')
+    currentDir = os.path.dirname(os.path.realpath(mxd.filePath))
     parentDir = os.path.abspath(os.path.join(currentDir, os.pardir))
     layersPath = os.path.join(parentDir, folderName)
     if not os.path.exists(layersPath):
@@ -13,9 +19,16 @@ def autoPath(folderName="Layerfiles"):
     arcpy.env.overwriteOutput = True
     arcpy.env.workspace = layersPath
     workspace = arcpy.env.workspace
-    os.chdir(workspace) # is this needed?
 
     return workspace
+
+class LayerHelper(object):
+    """Implementation for Layers_addin.layerHelper_1 (Extension)"""
+    def __init__(self):
+        # For performance considerations, please remove all unused methods in this class.
+        self.enabled = True
+    def pageIndexExtentChanged(self, new_id):
+        RestoreLayers.onClick()
 
 class ResetLayers(object):
     """Implementation for Layers_addin.resetLayers (Button)"""
@@ -23,12 +36,16 @@ class ResetLayers(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        arcpy.env.overwriteOutput = True
-        arcpy.env.workspace = r"P:\15045 - ED Redistribution - Event Specific\R2015\21-Electoral_Boundaries_Commission_Support_Doc\WBS 8 - Geography\Mapping\Layer_Packages_for_PDF_Notes-Changes\Default_Layers"
-        workspace = arcpy.env.workspace
-        os.chdir(workspace)
-
+        defaultLayersWorkspace = os.path.join(autoPath(), "default_Layers")
+        arcpy.env.workspace = defaultLayersWorkspace
         mxd = arcpy.mapping.MapDocument("CURRENT")
+
+        # Create Default Layers directory if none exists.
+        if not os.path.exists(defaultLayersWorkspace):
+            os.makedirs(defaultLayersWorkspace)
+            pythonaddins.MessageBox("Default layers yet not created.\nRun createDefaultLyrs.py inside the interactive python interpreter of MXD you want to create default layers for and select\n\n{}\n\n as the save location.".format(defaultLayersWorkspace), "Layers Not Created", 0)
+
+        # Load Default Layers.
         dfLst = arcpy.mapping.ListDataFrames(mxd)
 
         # Initialize empty lists for MessageBox.
@@ -38,10 +55,10 @@ class ResetLayers(object):
         for df in dfLst:
             for lyr in arcpy.mapping.ListLayers(mxd, "*", df):
                 if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
-                    lyrString = "default_%s.lyr" % (lyr.name)
+                    lyrString = "default_%s_%s.lyr" % (lyr.name, df.name)
                     if lyrString in arcpy.ListFiles("*.lyr"):
                         ref_layer = arcpy.mapping.ListLayers(mxd, lyr.name, df)[0]
-                        insert_layer = arcpy.mapping.Layer("%s\\%s" % (workspace, lyrString))
+                        insert_layer = arcpy.mapping.Layer("%s\\%s" % (defaultLayersWorkspace, lyrString))
                         arcpy.mapping.InsertLayer(df, ref_layer,insert_layer, "AFTER")
                         arcpy.mapping.RemoveLayer(df, ref_layer)
                         # Add swapped layers to list and show user with pythonaddins.MessageBox().
@@ -50,70 +67,74 @@ class ResetLayers(object):
                         lyrsNotReset.append(lyrString + df.name)
         pythonaddins.MessageBox("Layers Reset:\n%s \n\nLayers NOT Reset:\n%s" % (set(lyrsReset), set(lyrsNotReset)),"Layer Reset Summary", 0)
 
-class SaveLayers(object):
-    """Implementation for Layers_addin.saveLayers (Button)"""
-    def __init__(self):
-        self.enabled = True
-        self.checked = False
-    def onClick(self):
-        workspace = autoPath()
-        mxd = arcpy.mapping.MapDocument("CURRENT")
-        ddp = mxd.dataDrivenPages
-        dfLst = arcpy.mapping.ListDataFrames(mxd)
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
-
-        # Set data frame name to credits (can change to description) field for use in lyrString. 
-        for df in dfLst:
-            for lyr in arcpy.mapping.ListLayers(mxd, "*", df):
-                if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
-                    lyr.credits = df.name
-
-        lyr = pythonaddins.GetSelectedTOCLayerOrDataFrame()
-        if not isinstance(lyr, arcpy.mapping.Layer) or lyr.isGroupLayer:
-            pythonaddins.MessageBox('Please select one (1) layer (not a group or data frame or multiple layers) in the Table Of Contents', 'Layer Selection Error', 0)
-        else:
-            lyrString = "%s_%s_%s.lyr" % (pageName, lyr.name, lyr.credits)
-            arcpy.SaveToLayerFile_management(lyr, workspace + "\\" + lyrString, "ABSOLUTE")
-            pythonaddins.MessageBox("%s layer saved to:\n\n%s\n\nas:\n\n%s" % (lyr.name, workspace, lyrString), "Layer Saved", 0)
-
 class RestoreLayers(object):
     """Implementation for Layers_addin.RestoreLayers (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
+        try:
+            # Create an instance of the ResetLayers class.
+            reset = ResetLayers()
+            # Call ResetLayers onClick method.
+            reset.onClick()
 
-        # Create an instance of the ResetLayers class.
-        reset = ResetLayers()
-        # Call ResetLayers onClick method.
-        reset.onClick()
+            workspace = autoPath()
+            os.chdir(workspace)
 
-        workspace = autoPath()
-        os.chdir(workspace)
+            mxd = arcpy.mapping.MapDocument("CURRENT")
+            ddp = mxd.dataDrivenPages
+            pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+            dfLst = arcpy.mapping.ListDataFrames(mxd)
+            layers = arcpy.mapping.ListLayers(mxd)
 
-        mxd = arcpy.mapping.MapDocument("CURRENT")
-        ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
-        dfLst = arcpy.mapping.ListDataFrames(mxd)
-        layers = arcpy.mapping.ListLayers(mxd)
+            # Add description to layers if blank.
+            for layer in arcpy.mapping.ListLayers(mxd):
+                if layer.description == "":
+                    layer.description = "This is a default description for the '%s' layer. Feel free to change or update this description." % (layer.name)
 
-        # Add description to layers if blank.
-        for layer in arcpy.mapping.ListLayers(mxd):
-            if layer.description == "":
-                layer.description = "This is a default description for the '%s' layer. Feel free to change or update this description." % (layer.name)
+            # Initialize empty list for MessageBox.
+            lyrsRestored = []
+            # Iterate features and dataframes. Replace if layerfile exists for feature.
+            for df in dfLst:
+                for lyr in arcpy.mapping.ListLayers(mxd,"*", df):
+                    if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
+                        lyrString = "%s_%s_%s.lyr" % (pageName, lyr.name, df.name)
+                        if lyrString in arcpy.ListFiles("*.lyr"):
+                            ref_layer = arcpy.mapping.ListLayers(mxd, lyr.name, df)[0]
+                            insert_layer = arcpy.mapping.Layer("%s\\%s" % (workspace, lyrString))
+                            arcpy.mapping.InsertLayer(df, ref_layer,insert_layer, "AFTER")
+                            arcpy.mapping.RemoveLayer(df, ref_layer)
+                            lyrsRestored.append(lyrString + df.name)
 
-        # Initialize empty list for MessageBox.
-        lyrsRestored = []
-        # Iterate features and dataframes. Replace if layerfile exists for feature.
-        for df in dfLst:
-            for lyr in arcpy.mapping.ListLayers(mxd,"*", df):
-                if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
-                    lyrString = "%s_%s_%s.lyr" % (pageName, lyr.name, df.name)
-                    if lyrString in arcpy.ListFiles("*.lyr"):
-                        ref_layer = arcpy.mapping.ListLayers(mxd, lyr.name, df)[0]
-                        insert_layer = arcpy.mapping.Layer("%s\\%s" % (workspace, lyrString))
-                        arcpy.mapping.InsertLayer(df, ref_layer,insert_layer, "AFTER")
-                        arcpy.mapping.RemoveLayer(df, ref_layer)
-                        lyrsRestored.append(lyrString + df.name)
+            pythonaddins.MessageBox("Layers Restored:\n%s" % lyrsRestored,"Restored Layers Summary", 0)
+        except Exception as e:
+            pythonaddins.MessageBox(e, "Error")
 
-        pythonaddins.MessageBox("Layers Restored:\n%s" % lyrsRestored,"Layer Restored Summary", 0)
+class SaveLayers(object):
+    def __init__(self):
+        self.enabled = True
+        self.checked = False
+    def onClick(self):
+        try:
+            workspace = autoPath()
+            mxd = arcpy.mapping.MapDocument("CURRENT")
+            ddp = mxd.dataDrivenPages
+            dfLst = arcpy.mapping.ListDataFrames(mxd)
+            pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+
+            # Set data frame name to credits field (can change to description field) for use in lyrString. 
+            for df in dfLst:
+                for lyr in arcpy.mapping.ListLayers(mxd, "*", df):
+                    if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
+                        lyr.credits = df.name
+
+            lyr = pythonaddins.GetSelectedTOCLayerOrDataFrame()
+            if not isinstance(lyr, arcpy.mapping.Layer) or lyr.isGroupLayer:
+                pythonaddins.MessageBox('Please select one (1) layer (not a group or data frame or multiple layers) in the Table Of Contents', 'Layer Selection Error', 0)
+            else:
+                lyrString = "%s_%s_%s.lyr" % (pageName, lyr.name, lyr.credits)
+                arcpy.SaveToLayerFile_management(lyr, workspace + "\\" + lyrString, "ABSOLUTE")
+                pythonaddins.MessageBox("%s layer saved to:\n\n%s\n\nas:\n\n%s" % (lyr.name, workspace, lyrString), "Layer Saved", 0)
+        except Exception as e:
+            pythonaddins.MessageBox(e, "Error")
