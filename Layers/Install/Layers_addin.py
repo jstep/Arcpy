@@ -2,6 +2,21 @@ import arcpy
 import pythonaddins
 import os
 
+def autoPath(folderName="Layerfiles"):
+    # Create a 'folderName' folder in parent folder.
+    currentDir = os.path.dirname(os.path.realpath(__file__))
+    parentDir = os.path.abspath(os.path.join(currentDir, os.pardir))
+    layersPath = os.path.join(parentDir, folderName)
+    if not os.path.exists(layersPath):
+        os.makedirs(layersPath)
+
+    arcpy.env.overwriteOutput = True
+    arcpy.env.workspace = layersPath
+    workspace = arcpy.env.workspace
+    os.chdir(workspace) # is this needed?
+
+    return workspace
+
 class ResetLayers(object):
     """Implementation for Layers_addin.resetLayers (Button)"""
     def __init__(self):
@@ -41,11 +56,7 @@ class SaveLayers(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        arcpy.env.overwriteOutput = True
-        arcpy.env.workspace = r"P:\15045 - ED Redistribution - Event Specific\R2015\21-Electoral_Boundaries_Commission_Support_Doc\WBS 8 - Geography\Mapping\Layer_Packages_for_PDF_Notes-Changes"
-        workspace = arcpy.env.workspace
-        os.chdir(workspace)
-
+        workspace = autoPath()
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
         dfLst = arcpy.mapping.ListDataFrames(mxd)
@@ -77,9 +88,7 @@ class RestoreLayers(object):
         # Call ResetLayers onClick method.
         reset.onClick()
 
-        arcpy.env.overwriteOutput = True
-        arcpy.env.workspace = r"P:\15045 - ED Redistribution - Event Specific\R2015\21-Electoral_Boundaries_Commission_Support_Doc\WBS 8 - Geography\Mapping\Layer_Packages_for_PDF_Notes-Changes"
-        workspace = arcpy.env.workspace
+        workspace = autoPath()
         os.chdir(workspace)
 
         mxd = arcpy.mapping.MapDocument("CURRENT")
