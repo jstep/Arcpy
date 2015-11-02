@@ -116,12 +116,10 @@ mainTitle.elementPositionX = svaTxtElem.elementPositionX + (textWidth / 2) - (ma
 # Contrived way to remove duplicates from SVA text column. If you have a better way I'd like to see it.
 splitLst = svaTxtElem.text.split()
 setSplititLst = list(set(svaTxtElem.text.split()))
-
 for i, item in enumerate(splitLst):
     if item in setSplititLst:
         setSplititLst.remove(item)
     else:
         splitLst[i] =  splitLst[i].replace(splitLst[i], len(splitLst[i]) * " ")
-
 joinedText = "\n".join(splitLst)
 svaTxtElem.text = joinedText
