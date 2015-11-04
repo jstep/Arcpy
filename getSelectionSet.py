@@ -4,11 +4,18 @@ def getSelectionSet():
     """
     mxd = arcpy.mapping.MapDocument("CURRENT")
     lyrLst = arcpy.mapping.ListLayers(mxd)
+    fidLst = []
     for lyr in lyrLst:
         try:
             desc = arcpy.Describe(lyr)
             if desc.FIDSet:
-                return desc.FIDSet
+                fidLst.append(desc.FIDSet.replace(";", ","))
+
         except:
             pass
 
+    # Check for multiple layers selected.
+    if len(fidLst) > 1:
+        raise TypeError("Please select features from a single layer.")
+        
+    return fidLst # separate items
