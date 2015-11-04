@@ -7,7 +7,7 @@ def querySelection():
     ids, name, df, oid = getSelectionSet()
     lyr = arcpy.mapping.ListLayers(mxd, name, df)[0]
     
-    # Build SQL clause.
+    # Build SQL clause to use in definition query.
     whereClause = "{} in ({})".format(oid, ','.join(str(id) for id in ids))
 
     # Apply the definition query.

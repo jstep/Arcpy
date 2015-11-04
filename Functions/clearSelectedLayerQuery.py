@@ -3,5 +3,5 @@ def clearSelectedLayerQuery():
     import pythonaddins
     lyr = pythonaddins.GetSelectedTOCLayerOrDataFrame()
     lyr.definitionQuery = ""
-    print "Definition query for '{0}'' layer cleared.".format(lyr.name)
+    print "Definition query for '{}'' layer cleared.".format(lyr.name)
     arcpy.RefreshActiveView()

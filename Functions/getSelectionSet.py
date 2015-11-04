@@ -5,7 +5,7 @@ def getSelectionSet():
     try:
         mxd = arcpy.mapping.MapDocument("CURRENT")
         df = mxd.activeDataFrame
-        lyrLst = arcpy.mapping.ListLayers(mxd, "*", df) # Only list first data frame to avoid identically named layers, where all would get selected. 
+        lyrLst = arcpy.mapping.ListLayers(mxd, "*", df) # Only list first dataframe to avoid identically named layers, where all would get selected. 
         fidLst = []
         lyrName = ""
         for lyr in lyrLst:
