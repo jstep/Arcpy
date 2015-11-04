@@ -53,23 +53,23 @@ elemLst = [svaTxtElem, facTxtElem, addrTxtElem, cityTxtElem]
 
 # Captions cannot be empty therefore a single char. Set all font sizes to same.
 for elem in elemLst:
-	elem.text = " "
+    elem.text = " "
 
 # Populate columns.
 whereClause = "ed = "+ "'" + pageName + "'"
 rows = sorted(arcpy.da.SearchCursor(mapLyr.dataSource, fieldLst, whereClause))
 
 for row in rows:
-	svaTxtElem.text  += "{}\n".format(row[0])
-	facTxtElem.text  += "{}\n".format(row[1])
-	addrTxtElem.text += "{} ".format(row[2])
-	addrTxtElem.text += "{}\n".format(row[3])
-	cityTxtElem.text += "{}\n".format(row[4])
+    svaTxtElem.text  += "{}\n".format(row[0])
+    facTxtElem.text  += "{}\n".format(row[1])
+    addrTxtElem.text += "{} ".format(row[2])
+    addrTxtElem.text += "{}\n".format(row[3])
+    cityTxtElem.text += "{}\n".format(row[4])
 
 # Slice off leading space char.
 for elem in elemLst:
-	elem.text = elem.text[1:]
-	elem.text = '\n'.join(' '.join(line.split()) for line in elem.text.split('\n')) # Removes two or more spaces. Splits text into lines. Then splits each line by whitespace and rejoins with single spaces. Then rejoins the lines.
+    elem.text = elem.text[1:]
+    elem.text = '\n'.join(' '.join(line.split()) for line in elem.text.split('\n')) # Removes two or more spaces. Splits text into lines. Then splits each line by whitespace and rejoins with single spaces. Then rejoins the lines.
 
 svaBox = arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", svaBox)[0]
 
