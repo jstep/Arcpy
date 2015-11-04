@@ -2,7 +2,7 @@ def querySelection():
     """Builds a definition query to display only the currently 
     selected features for that layer.
     """
-    # import getSelectionSet
+    import getSelectionSet
     mxd = arcpy.mapping.MapDocument("CURRENT")
     ids, name, df, oid = getSelectionSet()
     lyr = arcpy.mapping.ListLayers(mxd, name, df)[0]
