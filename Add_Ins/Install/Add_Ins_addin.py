@@ -103,7 +103,7 @@ class LoadFGDBs(object):
             """
             try:
               # dfScale = int(round(df.scale))
-              arcpy.env.workspace =  os.path.join(baseDirectory, dfName + " Anno GDBs")
+              arcpy.env.workspace = os.path.join(baseDirectory, dfName + " Anno GDBs")
               targetGDB = arcpy.ListFiles("*" + pageName + "*" )[0] # + str(dfScale) + "*" ### Only list files that contain current edabbr and end in dataframe's scale.
               workspace = os.path.join(arcpy.env.workspace, targetGDB) 
               for (dirpath, dirnames, filenames) in arcpy.da.Walk(workspace):
@@ -128,7 +128,9 @@ class LoadFGDBs(object):
         pageNameField = ddp.pageNameField.name # edabbr
         dfLst = arcpy.mapping.ListDataFrames(mxd)
 
-        baseDir = r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs"
+        baseDir = False
+        while baseDir == False: 
+            baseDir = pythonaddins.OpenDialog("Select Path to Annotation FGDB", False, r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs", "Select")
 
         # Environment settings.
         arcpy.env.overwriteOutput = True
