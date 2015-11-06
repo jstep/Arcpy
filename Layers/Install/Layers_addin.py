@@ -1,26 +1,10 @@
 import arcpy
 import os
 import pythonaddins
+import sys
 
-def autoPath(folderName="Layerfiles"):
-    """Returns a workspace path one level above the MXD's current directory, 
-    and sets the current workspace to that directory. Creates a folder with 
-    name equal to parameter, if it does not already exist. 
-    Parameters: Folder name. Default parameter is 'Layerfiles'.
-    """
-    # Create a 'folderName' folder in parent folder.
-    mxd = arcpy.mapping.MapDocument('CURRENT')
-    currentDir = os.path.dirname(os.path.realpath(mxd.filePath))
-    parentDir = os.path.abspath(os.path.join(currentDir, os.pardir))
-    layersPath = os.path.join(parentDir, folderName)
-    if not os.path.exists(layersPath):
-        os.makedirs(layersPath)
-
-    arcpy.env.overwriteOutput = True
-    arcpy.env.workspace = layersPath
-    workspace = arcpy.env.workspace
-
-    return workspace
+sys.path.append(os.path.dirname(__file__)) # Add this script to system path. Used to separate main script from other code packages.
+from autoPath import autoPath
 
 class LayerHelper(object):
     """Implementation for Layers_addin.layerHelper_1 (Extension)"""
@@ -43,7 +27,7 @@ class ResetLayers(object):
         # Create Default Layers directory if none exists.
         if not os.path.exists(defaultLayersWorkspace):
             os.makedirs(defaultLayersWorkspace)
-            pythonaddins.MessageBox("Default layers yet not created.\nRun createDefaultLyrs.py inside the interactive python interpreter of MXD you want to create default layers for and select\n\n{}\n\n as the save location.".format(defaultLayersWorkspace), "Layers Not Created", 0)
+            pythonaddins.MessageBox("Default layers yet not created.\nRun createDefaultLyrs.py inside the interactive python window of this MXD.", "Layers Not Created", 0)
 
         # Load Default Layers.
         dfLst = arcpy.mapping.ListDataFrames(mxd)

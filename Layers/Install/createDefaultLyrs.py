@@ -2,8 +2,11 @@ import arcpy
 import os
 import pythonaddins
 
+sys.path.append(os.path.dirname(__file__)) # Add this script to system path. Used to separate main script from other code packages.
+from autoPath import autoPath
+
 arcpy.env.overwriteOutput = True
-arcpy.env.workspace = pythonaddins.OpenDialog("Select location to save default layers", False, os.path.basename, "Select Folder")
+arcpy.env.workspace = os.path.join(autoPath(), "default_Layers")
 workspace = arcpy.env.workspace
 os.chdir(workspace)
 
