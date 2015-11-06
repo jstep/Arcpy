@@ -2,6 +2,7 @@ def querySelection():
     """Builds a definition query to display only the currently 
     selected features for that layer.
     """
+    sys.path.append(os.path.dirname(__file__)) # Add this script to system path. Used to separate main script from other code packages.
     import getSelectionSet
     mxd = arcpy.mapping.MapDocument("CURRENT")
     ids, name, df, oid = getSelectionSet()
