@@ -1,4 +1,4 @@
-def autoPath(folderName="Layerfiles"):
+def autoPath(folderName="layer_files"):
     """Returns a workspace path one level above the MXD's current directory, 
     and sets the current workspace to that directory. Creates a folder with 
     name equal to parameter, if it does not already exist. 

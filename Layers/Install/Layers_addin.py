@@ -20,7 +20,8 @@ class ResetLayers(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        defaultLayersWorkspace = os.path.join(autoPath(), "default_Layers")
+        grandParent = os.path.abspath(os.path.join(autoPath(), os.pardir, os.pardir))
+        defaultLayersWorkspace = os.path.join(grandParent, "Default_Layers")
         arcpy.env.workspace = defaultLayersWorkspace
         mxd = arcpy.mapping.MapDocument("CURRENT")
 
@@ -39,17 +40,17 @@ class ResetLayers(object):
         for df in dfLst:
             for lyr in arcpy.mapping.ListLayers(mxd, "*", df):
                 if isinstance(lyr, arcpy.mapping.Layer) and not lyr.isGroupLayer:
-                    lyrString = "default_%s_%s.lyr" % (lyr.name, df.name)
+                    lyrString = "default_%s.lyr" % (lyr.name)
                     if lyrString in arcpy.ListFiles("*.lyr"):
                         ref_layer = arcpy.mapping.ListLayers(mxd, lyr.name, df)[0]
                         insert_layer = arcpy.mapping.Layer("%s\\%s" % (defaultLayersWorkspace, lyrString))
                         arcpy.mapping.InsertLayer(df, ref_layer,insert_layer, "AFTER")
                         arcpy.mapping.RemoveLayer(df, ref_layer)
                         # Add swapped layers to list and show user with pythonaddins.MessageBox().
-                        lyrsReset.append(lyrString + df.name)
+                        lyrsReset.append("{} - {}".format(lyrString, df.name))
                     else:
-                        lyrsNotReset.append(lyrString + df.name)
-        pythonaddins.MessageBox("Layers Reset:\n%s \n\nLayers NOT Reset:\n%s" % (set(lyrsReset), set(lyrsNotReset)),"Layer Reset Summary", 0)
+                        lyrsNotReset.append("{} - {}".format(lyrString, df.name))
+        pythonaddins.MessageBox("Layers Reset:\n{} \n\nLayers NOT Reset:\n{}".format(lyrsReset, lyrsNotReset),"Layer Reset Summary", 0)
 
 class RestoreLayers(object):
     """Implementation for Layers_addin.RestoreLayers (Button)"""
