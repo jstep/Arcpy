@@ -1,5 +1,6 @@
 import arcpy
 import datetime
+import getpass
 import logging
 import logging.handlers
 import os
@@ -16,14 +17,16 @@ def exporter(mxdPath, user_dpi):
         dpi = user_dpi
         colorspace = "CMYK"
         ddp = mxd.dataDrivenPages
-        pageName = pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
         
         log.info("MXD path: {}".format(mxd.filePath))
         log.info("DPI: {}".format(str(dpi)))
         log.info("Colorspace: {}".format(colorspace))
         log.info("Page Name: {}".format(pageName))
 
-        outDir = os.path.join(os.path.dirname(mxdPath), "PDF")
+        curDirPath = os.path.dirname(mxd.filePath)
+        parDirPath = os.path.abspath(os.path.join(curDirPath, os.pardir))
+        outDir = os.path.join(parDirPath, "PDF_Draft_Exports")
         if not os.path.exists(outDir):
             os.makedirs(outDir)
         log.info("Output directory set to {}".format(outDir))
@@ -40,7 +43,7 @@ def exporter(mxdPath, user_dpi):
         else :
             orient = "{}x{}".format(str(mxd.pageSize[0]), str(mxd.pageSize[1]))
         
-        log.info("MXD page size: {}x{}. Orient set to: {}".format(mxd.pageSize.width, mxd.pageSize.height, orient))
+        log.info("MXD page size: {} x {}. Orient set to: {}".format(mxd.pageSize.width, mxd.pageSize.height, orient))
 
         # Join output directory with formatted file name.
         PathOut = os.path.join(outDir,"{}_{}_{}_{}".format(pageName,str(dpi),colorspace,orient))
@@ -77,13 +80,15 @@ if __name__ == "__main__":
     mxd = sys.argv[1]
     user_dpi = sys.argv[2]
 
-    # Log files folder will be created at same directory level as script. 
-    logPath = os.path.join(os.path.dirname(mxd), "Logfiles-PDF_Export")
+    # Log files folder will be created in the pdf folder one level up. 
+    curDirPath = os.path.dirname(mxd)
+    parDirPath = os.path.abspath(os.path.join(curDirPath, os.pardir))
+    logPath = os.path.join(parDirPath, "Logfiles-PDF_Export")
     if not os.path.exists(logPath):
         os.makedirs(logPath)
 
     # Make a global logging object.
-    logName = os.path.join(logPath,(now.strftime("%Y-%m-%d_%H-%M.log")))
+    logName = os.path.join(logPath,(getpass.getuser() + now.strftime("_%Y-%m-%d_%H-%M.log")) )
 
     log = logging.getLogger("script_log")
     log.setLevel(logging.INFO)
