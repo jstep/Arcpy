@@ -56,7 +56,7 @@ class PNG_Draft(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        exporter("24-BIT_TRUE_COLOR", 1152, "PNG")
+        exporter("24-BIT_TRUE_COLOR", 576, "PNG")
 
 class RGB144(object):
     """Implementation for PDF_Export_Addin_addin.button_1 (Button)"""
