@@ -1,9 +1,0 @@
-[INFO] [11/10/2015 02:48:36 PM] [97] - ----------------------------------------------------
-[INFO] [11/10/2015 02:48:36 PM] [98] - Script: PDF_Export_Cmd.py
-[INFO] [11/10/2015 02:48:36 PM] [99] - ----------------------------------------------------
-[INFO] [11/10/2015 02:48:38 PM] [24] - outDir variable set to O:\EBC\Python Addin Scripts\Arcpy\PDF_Export_Stand_Alone\PDF
-[INFO] [11/10/2015 02:48:40 PM] [37] - MXD page size: 8.5x11.0. Orient set to: 8.5x11.0
-[INFO] [11/10/2015 02:48:40 PM] [41] - PDF saved to: O:\EBC\Python Addin Scripts\Arcpy\PDF_Export_Stand_Alone\PDF\ABW_144_CMYK_8.5x11.0
-[INFO] [11/10/2015 02:48:41 PM] [109] - ----------------------------------------------------
-[INFO] [11/10/2015 02:48:41 PM] [110] - Script Completed After: 00:00:04
-[INFO] [11/10/2015 02:48:41 PM] [111] - ----------------------------------------------------
