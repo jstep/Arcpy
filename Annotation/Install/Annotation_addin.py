@@ -45,7 +45,10 @@ class ExtentBoxes(object):
         # Persist a copy of the Polygon objects using CopyFeatures
         poly_filename = "DF_Polygons_{}".format(pageName)
         parentDir = os.path.abspath(os.path.join(os.path.dirname(mxd.filePath), os.pardir))
-        outDir = os.path.join(parentDir, "anno_fgdb")
+        edDir = os.path.join(parentDir, pageName)
+        if not os.path.exists(edDir):
+            os.makedirs(edDir)
+        outDir = os.path.join(edDir, "anno_fgdb")
         if not os.path.exists(outDir):
             os.makedirs(outDir)
         workspace = arcpy.env.workspace = outDir
@@ -90,7 +93,16 @@ class GenerateTiledAnno(object):
             try:
                 fgdb = os.path.join(workspace, "{}_{}_{}.gdb".format(pageName, str(df.name), int(round(df.scale))))
                 if os.path.exists(fgdb):
-                    arcpy.TiledLabelsToAnnotation_cartography(mxd.filePath, str(df.name), tileIndexPoly, fgdb, GroupAnno + str(df.name) + "_", anno_suffix, round(df.scale), "", "", "", "", "STANDARD", "GENERATE_UNPLACED_ANNOTATION")
+                    arcpy.TiledLabelsToAnnotation_cartography(
+                        mxd.filePath,
+                        str(df.name),
+                        tileIndexPoly,
+                        fgdb,
+                        GroupAnno + str(df.name) + "_",
+                        anno_suffix,
+                        round(df.scale),
+                        feature_linked="STANDARD",
+                        generate_unplaced_annotation="GENERATE_UNPLACED_ANNOTATION")
             except Exception as e:
                 print e
 
@@ -99,10 +111,19 @@ class GenerateTiledAnno(object):
             if lyr.supports("LABELCLASSES"):
                 lyr.showLabels = False
 
-        # Remove DF Polygons.
         for df in df_lst:
+            # Remove DF Polygons.
             for lyr in arcpy.mapping.ListLayers(mxd,"", df):
                 if lyr.name.lower().startswith("df_polygons"):
                     arcpy.mapping.RemoveLayer(df, lyr)
 
-        del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, indexLyrName, lyr, mxd, onMapDFs, pageName, parentDir, tileIndexPoly
+            # Remove empty annotation groups.
+            groupLayers = [x for x in arcpy.mapping.ListLayers(mxd) if x.isGroupLayer and GroupAnno in x.name] 
+            for group in groupLayers:
+                count = 0
+                for item in group:
+                    count += 1
+                if count == 0:
+                    arcpy.mapping.RemoveLayer(df, group)
+
+        del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, indexLyrName, lyr, mxd, onMapDFs, pageName, parentDir, tileIndexPoly, group, groupLayers, count
