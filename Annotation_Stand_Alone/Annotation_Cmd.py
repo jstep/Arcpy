@@ -1,12 +1,30 @@
 #############################################################################
+# The MIT License (MIT)
+# 
+# Copyright (c) 2015 James Stephaniuk
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
-# Author: James Stephaniuk
-#
-# Date: November 25, 2015
-#
+#############################################################################
 # Usage: Run this script from the command line.             
 # Navigate to this script's folder in the command line and type:
-# python [script name] "[mxd path]"
+# python [script name] "[mxd path]".
 #
 ##############################################################################
 
@@ -84,8 +102,6 @@ def createExtentBoxes(mxdPath):
             arcpy.CreateFileGDB_management(workspace, "{}_{}_{}".format(pageName, df.name, str(int(round(df.scale)))), "CURRENT")
             log.info("FGDB created: {}".format(fgdb))
 
-        mxd.save()
-
         del coords, feature_info, features, feature, poly_filename, outDir, mxd, df_lst, df_info, df, XMax, XMin, YMax, YMin, ddp, pageName 
     except Exception as e:
         log.info("An error occured: {}".format(e))
@@ -115,12 +131,13 @@ def generateTiledAnno(mxdPath):
         if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0] and df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):
             onMapDFs.append(df)
 
-    tileIndexPoly = arcpy.ListFeatureClasses("DF_Polygons*")[0]
+    parentDir = os.path.abspath(os.path.join(os.path.dirname(mxd.filePath), os.pardir))
+    workspace = arcpy.env.workspace = os.path.join(parentDir, pageName, "anno_fgdb")
+
+    indexFC = arcpy.ListFeatureClasses("DF_Polygons*")[0]
+    tileIndexPoly = os.path.join(workspace, indexFC)
     GroupAnno = "GroupAnno"
     anno_suffix = "Anno"
-    
-    parentDir = os.path.abspath(os.path.join(os.path.dirname(mxd.filePath), os.pardir))
-    workspace = arcpy.env.workspace = os.path.join(parentDir, "anno_fgdb")
 
     for df in onMapDFs:
         # arcpy.activeView = df.name
@@ -130,39 +147,45 @@ def generateTiledAnno(mxdPath):
                 arcpy.TiledLabelsToAnnotation_cartography(
                     mxd.filePath,
                     str(df.name),
-                    tileIndexPoly,
+                    # r"C:\Users\jastepha\Desktop\EDVA Maps\VMP\anno_fgdb\DF_Polygons_VMP.shp",
+                    str(tileIndexPoly),
                     fgdb,
                     GroupAnno + str(df.name) + "_",
                     anno_suffix,
                     round(df.scale),
                     feature_linked="STANDARD",
                     generate_unplaced_annotation="GENERATE_UNPLACED_ANNOTATION")
+                log.info("Tiled Annotation Created at {}".format(fgdb))
+            else:
+                log.info("{} DOES NOT EXIST".format(fgdb))
+
         except Exception as e:
-            print e
+            log.info(e)
 
-    # Turn off all labels.
-    for lyr in arcpy.mapping.ListLayers(mxd):
-        if lyr.supports("LABELCLASSES"):
-            lyr.showLabels = False
+    # Turn off all labels. Uncomment mxd.save() below too. Turned off to improve script run time.
+    # for lyr in arcpy.mapping.ListLayers(mxd):
+    #     if lyr.supports("LABELCLASSES"):
+    #         lyr.showLabels = False
+    # log.info("All labels have been turned off.")
 
-    for df in df_lst:
-        # Remove DF Polygons.
-        for lyr in arcpy.mapping.ListLayers(mxd,"", df):
-            if lyr.name.lower().startswith("df_polygons"):
-                arcpy.mapping.RemoveLayer(df, lyr)
+    # for df in df_lst:
+    #     # Remove DF Polygons.
+    #     for lyr in arcpy.mapping.ListLayers(mxd,"", df):
+    #         if lyr.name.lower().startswith("df_polygons"):
+    #             arcpy.mapping.RemoveLayer(df, lyr)
 
-        # Remove empty annotation groups.
-        groupLayers = [x for x in arcpy.mapping.ListLayers(mxd) if x.isGroupLayer and GroupAnno in x.name] 
-        for group in groupLayers:
-            count = 0
-            for item in group:
-                count += 1
-            if count == 0:
-                arcpy.mapping.RemoveLayer(df, group)
+    #     # Remove empty annotation groups.
+    #     groupLayers = [x for x in arcpy.mapping.ListLayers(mxd) if x.isGroupLayer and GroupAnno in x.name] 
+    #     for group in groupLayers:
+    #         count = 0
+    #         for item in group:
+    #             count += 1
+    #         if count == 0:
+    #             arcpy.mapping.RemoveLayer(df, group)
 
-    mxd.save()
+    # mxd.save()
 
-    # del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, lyr, mxd, onMapDFs, pageName, parentDir, tileIndexPoly, group, groupLayers, count
+    del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, mxd, onMapDFs, pageName, parentDir, tileIndexPoly
 
 def formatTime(x):
     minutes, seconds_rem = divmod(x, 60)
