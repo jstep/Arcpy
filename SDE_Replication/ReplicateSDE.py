@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     ############################# User variables #############################
     # Change this variable to the target database location (SDE connection).
-    databaseConnection = "C:\Users\jastepha\AppData\Roaming\ESRI\Desktop10.2\ArcCatalog\Connection to indeaprod2.sde"
+    databaseConnection = "PATH_TO_YOUR_SDE_CONNECTION"
 
     # Log files folder will be created at same directory level as script. 
     logPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "replicateSDE_Logfiles")
