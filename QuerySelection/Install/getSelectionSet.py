@@ -11,11 +11,14 @@ def getSelectionSet():
         lyrName = ""
         for lyr in lyrLst:
             try:
-                desc = arcpy.Describe(lyr)
-                if desc.FIDSet:
-                    fidLst.append(desc.FIDSet)
-                    lyrName = desc.nameString 
-            except RuntimeError:
+                if not lyr.isGroupLayer:
+                    desc = arcpy.Describe(lyr)
+                    if hasattr(desc, 'FIDSet'):
+                        if desc.FIDSet:
+                            fidLst.append(desc.FIDSet)
+                            lyrName = desc.nameString.split("\\")[-1] # Handles case of layers nested in groups. Gets lyr name minus the group name(s).
+                            OIDFieldName = desc.fieldInfo.getfieldname(0)
+            except RuntimeError, TypeError:
                 pass
 
         # Check for multiple layers selected.
@@ -25,8 +28,6 @@ def getSelectionSet():
         # Convert list string items to integers.
         fidLst = fidLst[0].split(";")
         fidLst = map(int, fidLst)
-
-        OIDFieldName = desc.fieldInfo.getfieldname(0)
 
         # Return list of selected feature IDs, the selected layer name, the data frame it is in, and the OID field name.
         return fidLst, lyrName, df, OIDFieldName
