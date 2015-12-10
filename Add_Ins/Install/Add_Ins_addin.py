@@ -9,7 +9,7 @@ def arrangeDFs(row, dfIndex, dfName):
     mxd = arcpy.mapping.MapDocument("CURRENT")
     rowInfo = json.loads(row.getValue(dfName))
     df = arcpy.mapping.ListDataFrames(mxd, dfName)[0]
-    nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
+    nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "*north*")
     nArrow = nArrowLst[dfIndex]
     scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale text*")[dfIndex]
     scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale bar*")[dfIndex]
@@ -44,6 +44,36 @@ def arrangeDFs(row, dfIndex, dfName):
     pass
 
   return
+
+def fetchFGDB():
+    pass
+
+def resetLayout():
+    mxd = arcpy.mapping.MapDocument("CURRENT")
+    df_lst = arcpy.mapping.ListLayoutElements(mxd, "DATAFRAME_ELEMENT")
+    insetDF_lst = arcpy.mapping.ListDataFrames(mxd, "*Inset*")
+    bottomMarginElems = [item0 for item0 in arcpy.mapping.ListLayoutElements(mxd) if (item0.elementPositionY >= 0.5 and item0.elementPositionY <  3.0)]
+    topMarginElems = [item1 for item1 in arcpy.mapping.ListLayoutElements(mxd) if item1.elementPositionY > 69.0 and item1.elementPositionY <  72.0]
+    lstTopBottomDF = df_lst + insetDF_lst + bottomMarginElems + topMarginElems
+    outsideMarginElems = [item2 for item2 in arcpy.mapping.ListLayoutElements(mxd) if item2 not in lstTopBottomDF]
+
+    # Reset index data frames.
+    for index, inset in enumerate(insetDF_lst):
+        inset.elementPositionX = -5.0
+        inset.elementPositionY = 0.0 + (inset.elementHeight * int(index)) + (int(index) * 0.5)
+        inset.elementHeight = 4.0
+        inset.elementWidth = 4.0
+        for i, elem in enumerate(outsideMarginElems):
+            if hasattr(elem, 'parentDataFrameName'):
+                if elem.parentDataFrameName == inset.name:
+                    elem.elementPositionX = inset.elementPositionX - 3.0
+                    elem.elementPositionY = inset.elementPositionY + (inset.elementHeight / 2)
+
+    # Move SVA box and items off the page.
+    svaLst = arcpy.mapping.ListLayoutElements(mxd, wildcard="*SVA*")
+    for item in svaLst:
+        item.elementPositionX = mxd.pageSize[0] + 2.0
+        item.elementPositionY = 5.0
 
 class DDP_Layout(object):
     """Implementation for Add_Ins_addin.DDPLayoutExt (Extension)"""
@@ -84,12 +114,14 @@ class DDP_Layout(object):
             arrangeDFs(pageLayoutRow, dfIndex, df.name)
 
         return
+
 class LoadFGDBs(object):
     """Implementation for Add_Ins_addin.button_3 (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
+        fetchFGDB()
 
         def fetchFGDB(df, baseDirectory, dfName):
             """Function to retrieve annotation file geodatabase for current ddp enabled map.\n
@@ -160,7 +192,7 @@ class RecordLayout(object):
 
         def setDF(dfIndex, df):
           """Function used to create a list of a data frame's position, dimensions, extent, scale, rotation, north arrow height/position, and scale text/bar height/position. Scale is rounded to nearest 100."""
-          nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "")
+          nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "*north*")
           northArrow = nArrowLst[dfIndex]
           scaleText = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale Text*")[dfIndex]
           scaleBar = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale Bar*")[dfIndex]
@@ -228,49 +260,15 @@ class RecordLayout(object):
             
           arcpy.RefreshCatalog(pageLayoutTable.dataSource)
           del pageLayoutCursor, pageLayoutRow
+
 class ResetLayout(object):
     """Implementation for Add_Ins_addin.button (Button)"""
     def __init__(self):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        mxd = arcpy.mapping.MapDocument("CURRENT")
+        resetLayout()
 
-        mainDF = arcpy.mapping.ListDataFrames(mxd)[0]
-        insetDF_lst = arcpy.mapping.ListDataFrames(mxd, "*Inset*")
-        mapElem_lst = arcpy.mapping.ListLayoutElements(mxd,"MAPSURROUND_ELEMENT", "*SCALE*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT")
-
-        # TODO: GENERALIZE OR SET FOR EDVA MAPS.
-        # Resets main dataframe to either landscape or protrait based on longer axis. 
-        if mxd.pageSize[1] > mxd.pageSize[0]:
-            # Portrait - 3/4 inch top/bottom padding, 1/2 inch left/right padding.
-            mainDF.elementPositionX = 0.5
-            mainDF.elementPositionY = 0.75
-            mainDF.elementHeight = mxd.pageSize[1] - 1.5 # 9.5 on letter size page.
-            mainDF.elementWidth =  mxd.pageSize[0] - 1.0 # 7.5 on letter size page.
-        elif mxd.pageSize[1] < mxd.pageSize[0]:
-            # Landscape - 1/2 inch top/bottom padding, 3/4 inch left/right padding.
-            mainDF.elementPositionX = 0.75
-            mainDF.elementPositionY = 0.5
-            mainDF.elementHeight = mxd.pageSize[1] - 1.0 # 7.6 on letter size page.
-            mainDF.elementWidth = mxd.pageSize[0] - 1.5 # 9.5 on letter size page.
-        else:
-            pass
-
-        for index, inset in enumerate(insetDF_lst):
-            dataFrame = insetDF_lst[index]
-            dataFrame.elementPositionX = -2.5 - int(index)
-            dataFrame.elementPositionY = 0.0
-            dataFrame.elementHeight = 2.0
-            dataFrame.elementWidth = 2.0
-            insetExtent_2 = arcpy.Extent(-501061.692164, -525266.392214, 2645013.83426, 2620809.13421)
-            dataFrame.extent = insetExtent_2
-
-        # Resets Map Surround Elements.
-        for index, mapElem in enumerate(mapElem_lst):
-            element = mapElem_lst[index]
-            element.elementPositionX = -2.5 - int(index)
-            element.elementPositionY = 5.0
 class RestoreLayout(object):
     """Implementation for Add_Ins_addin.button_2 (Button)"""
     def __init__(self):
@@ -286,8 +284,8 @@ class RestoreLayout(object):
         pageLayoutTable = arcpy.mapping.ListTableViews(mxd, "PageLayoutElements")[0]
 
         # Reset all data frames and layout elements.
-        reset = ResetLayout()
-        reset.onClick()
+        # reset = ResetLayout()
+        # reset.onClick()
 
         pageLayoutCursor = arcpy.SearchCursor(pageLayoutTable.dataSource, "\"" + pageNameField + "\" = '" + pageName + "'")
         pageLayoutRow = pageLayoutCursor.next()
