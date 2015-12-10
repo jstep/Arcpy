@@ -20,8 +20,8 @@ class ResetLayers(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        grandParent = os.path.abspath(os.path.join(autoPath(), os.pardir, os.pardir))
-        defaultLayersWorkspace = os.path.join(grandParent, "Default_Layers")
+        parentDir = os.path.abspath(os.path.join(autoPath(), os.pardir))
+        defaultLayersWorkspace = os.path.join(parentDir, "z_Default_Layers")
         arcpy.env.workspace = defaultLayersWorkspace
         mxd = arcpy.mapping.MapDocument("CURRENT")
 

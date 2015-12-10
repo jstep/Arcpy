@@ -6,8 +6,8 @@ sys.path.append(os.path.dirname(__file__)) # Add this script to system path. Use
 from autoPath import autoPath
 
 arcpy.env.overwriteOutput = True
-grandParent = os.path.abspath(os.path.join(autoPath(), os.pardir, os.pardir))
-workspace = os.path.join(grandParent, "Default_Layers")
+parentDir = os.path.abspath(os.path.join(autoPath(), os.pardir))
+workspace = os.path.join(parentDir, "z_Default_Layers")
 if not os.path.exists(workspace):
     os.makedirs(workspace)
 
