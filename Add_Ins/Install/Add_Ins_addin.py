@@ -47,8 +47,8 @@ def arrangeDFs(row, dfIndex, dfName):
 
   return
 
-def fetchFGDB():
-    pass
+# def fetchFGDB():
+#     pass
 
 def resetLayout():
     mxd = arcpy.mapping.MapDocument("CURRENT")
