@@ -36,7 +36,7 @@ A collection of add-in and command line tools for map production and automation.
     <li>Select layer in table of contents and press clear selection button to clear the query for that layer.
   </ul>
   
-<strong>ReplicateSD (Command Line Tool)E</strong>
+<strong>ReplicateSD (Command Line Tool)</strong>
   <ul>
     <li>An automated way to replicate ArcSDE connected database to a local FGDB to improve performance.
     <li>Uses a list (`layerNameLst`) to control which files are copied. Can easily be altered to include all files on SDE. 
