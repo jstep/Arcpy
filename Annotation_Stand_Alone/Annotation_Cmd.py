@@ -94,6 +94,10 @@ def createExtentBoxes(mxdPath):
         arcpy.CopyFeatures_management(features, poly_filename)
         log.info("'{}' saved to: {}".format(poly_filename, outDir))
 
+        # Remove existing FGDB(s).
+        for gdb in arcpy.ListFiles("*.gdb"):
+            gdb_path = os.path.join(workspace, gdb)
+            shutil.rmtree(gdb_path)
         # Create FGDB(s).
         for df in onMapDFs:
             fgdb = os.path.join(workspace, "{}_{}_{}.gdb".format(pageName, df.name, str(int(round(df.scale)))))
@@ -154,7 +158,7 @@ def generateTiledAnno(mxdPath):
                     anno_suffix,
                     round(df.scale),
                     feature_linked="STANDARD",
-                    generate_unplaced_annotation="GENERATE_UNPLACED_ANNOTATION")
+                    generate_unplaced_annotation="NOT_GENERATE_UNPLACED_ANNOTATION")
                 log.info("Tiled Annotation Created at {}".format(fgdb))
             else:
                 log.info("{} DOES NOT EXIST".format(fgdb))
@@ -185,7 +189,7 @@ def generateTiledAnno(mxdPath):
 
     # mxd.save()
 
-    del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, mxd, onMapDFs, pageName, parentDir, tileIndexPoly
+    # del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, mxd, onMapDFs, pageName, parentDir, tileIndexPoly
 
 def formatTime(x):
     minutes, seconds_rem = divmod(x, 60)
