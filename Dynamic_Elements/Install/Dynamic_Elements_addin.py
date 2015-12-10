@@ -113,7 +113,10 @@ def svaBoxAdjust():
     svaBox.elementWidth = max(textWidth, mainTitle.elementWidth) + (padding * 2) # Width of all elements, spacers, and padding.
 
     # Centre the main title.
-    mainTitle.elementPositionX = svaTxtElem.elementPositionX + (textWidth / 2) - (mainTitle.elementWidth / 2 )
+    if mainTitle.elementWidth > textWidth:
+        mainTitle.elementPositionX = svaTxtElem.elementPositionX
+    else:
+        mainTitle.elementPositionX = svaTxtElem.elementPositionX + (textWidth / 2) - (mainTitle.elementWidth / 2 )
 
     # Contrived way to remove duplicates from SVA text column. If you have a better way I'd like to see it.
     splitLst = svaTxtElem.text.split()
