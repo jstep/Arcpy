@@ -49,15 +49,6 @@ class CMYK288(object):
         # Call to exporter function.
         exporter("CMYK", 144)
 
-
-class PNG_Draft(object):
-    """Implementation for PDF_Export_Addin_addin.pngDraft (Button)"""
-    def __init__(self):
-        self.enabled = True
-        self.checked = False
-    def onClick(self):
-        exporter("24-BIT_TRUE_COLOR", 576, "PNG")
-
 class RGB144(object):
     """Implementation for PDF_Export_Addin_addin.button_1 (Button)"""
     def __init__(self):
