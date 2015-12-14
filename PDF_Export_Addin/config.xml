@@ -1,13 +1,13 @@
-<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>PDF Exporter</Name><AddInID>{e1c9e822-9d68-447f-a1ce-e810cb6f8e31}</AddInID><Description>Exports PDFs and PNGs</Description><Version>0.3</Version><Image>Images\pdf-icon.png</Image><Author>James Stephaniuk</Author><Company /><Date>12/02/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="PDF_Export_Addin_addin.py" namespace="PDF_Export_Addin_addin"><ArcMap>
+<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>PDF Exporter</Name><AddInID>{e1c9e822-9d68-447f-a1ce-e810cb6f8e31}</AddInID><Description>Exports PDFs</Description><Version>1.0</Version><Image>Images\pdf-icon.png</Image><Author>James Stephaniuk</Author><Company>EBC</Company><Date>12/11/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="PDF_Export_Addin_addin.py" namespace="PDF_Export_Addin_addin"><ArcMap>
     <Commands>
-        <Button caption="CMYK144" category="PDF Exporter" class="CMYK288" id="PDF_Export_Addin_addin.button" image="Images\cmyk.png" message="" tip=""><Help heading="" /></Button>
-        <Button caption="RGB144" category="PDF Exporter" class="RGB144" id="PDF_Export_Addin_addin.button_1" image="Images\rgb.png" message="" tip=""><Help heading="" /></Button>
+        <Button caption="CMYK144" category="PDF Exporter" class="CMYK" id="PDF_Export_Addin_addin.cmyk" image="Images\cmyk.png" message="Export current page to PDF with DPI: 144, Colorspace: CMYK" tip="CMYK144"><Help heading="" /></Button>
+        <Button caption="RGB144" category="PDF Exporter" class="RGB" id="PDF_Export_Addin_addin.rgb" image="Images\rgb.png" message="Export current page to PDF with DPI: 144, Colorspace: RGB" tip="RGB144"><Help heading="" /></Button>
         </Commands>
     <Extensions>
         </Extensions>
     <Toolbars>
-        <Toolbar caption="PDF_Toolbar" category="PDF Exporter" id="PDF_Export_Addin_addin.toolbar" showInitially="true"><Items><Button refID="PDF_Export_Addin_addin.button" /><Button refID="PDF_Export_Addin_addin.button_1" /></Items></Toolbar>
         </Toolbars>
     <Menus>
+        <Menu caption="PDF" category="PDF Exporter" id="PDF_Export_Addin_addin.pdf_menu" isRootMenu="true" isShortcutMenu="false" separator="true"><Items><Button refID="PDF_Export_Addin_addin.cmyk" /><Button refID="PDF_Export_Addin_addin.rgb" /></Items></Menu>
         </Menus>
     </ArcMap></AddIn></ESRI.Configuration>

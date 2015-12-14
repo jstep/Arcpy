@@ -1,4 +1,4 @@
-<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>Content &amp; Layout Helper</Name><AddInID>{cbf16477-d233-4a5d-b9bc-b57c11874d8c}</AddInID><Description>DDP layout helper tools</Description><Version>1.0</Version><Image>Images\LayoutIcon.png</Image><Author>James Stephaniuk</Author><Company>Elections BC</Company><Date>12/10/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="Add_Ins_addin.py" namespace="Add_Ins_addin"><ArcMap>
+<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>Content &amp; Layout Helper</Name><AddInID>{cbf16477-d233-4a5d-b9bc-b57c11874d8c}</AddInID><Description>DDP layout helper tools</Description><Version>1.0</Version><Image>Images\LayoutIcon.png</Image><Author>James Stephaniuk</Author><Company>Elections BC</Company><Date>12/11/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="Add_Ins_addin.py" namespace="Add_Ins_addin"><ArcMap>
     <Commands>
         <Button caption="Reset Layout" category="Content &amp; Layout Helper" class="ResetLayout" id="Add_Ins_addin.resetLayout" image="Images\LayoutToolbar.png" message="Reset Layout of current page" tip="Reset Layout"><Help heading="" /></Button>
         <Button caption="Record Layout" category="Content &amp; Layout Helper" class="RecordLayout" id="Add_Ins_addin.recordLayout" image="Images\button_grey_record.png" message="Record Layout of current page" tip="Record Layout"><Help heading="" /></Button>
@@ -13,6 +13,6 @@
     <Toolbars>
         </Toolbars>
     <Menus>
-        <Menu caption="Layout Menu" category="Content &amp; Layout Helper" id="Add_Ins_addin.layoutMenu" isRootMenu="true" isShortcutMenu="false" separator="true"><Items><Button refID="Add_Ins_addin.resetLayout" /><Button refID="Add_Ins_addin.recordLayout" /><Button refID="Add_Ins_addin.restoreLayout" /><Button refID="Add_Ins_addin.loadFGDBs" /><Button refID="Add_Ins_addin.svaBoxLayout" /></Items></Menu>
+        <Menu caption="Layout" category="Content &amp; Layout Helper" id="Add_Ins_addin.layoutMenu" isRootMenu="true" isShortcutMenu="false" separator="true"><Items><Button refID="Add_Ins_addin.resetLayout" /><Button refID="Add_Ins_addin.recordLayout" /><Button refID="Add_Ins_addin.restoreLayout" /><Button refID="Add_Ins_addin.loadFGDBs" /><Button refID="Add_Ins_addin.svaBoxLayout" /></Items></Menu>
         </Menus>
     </ArcMap></AddIn></ESRI.Configuration>

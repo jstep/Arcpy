@@ -1,4 +1,4 @@
-<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>Layer Helper</Name><AddInID>{7b8a5584-52b0-47d1-83c2-d1616f399131}</AddInID><Description>Layer Helper</Description><Version>0.1</Version><Image>Images\maps-and-geolocation-layers-icon.png</Image><Author>James Stephaniuk</Author><Company /><Date>11/02/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="Layers_addin.py" namespace="Layers_addin"><ArcMap>
+<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>Layer Helper</Name><AddInID>{7b8a5584-52b0-47d1-83c2-d1616f399131}</AddInID><Description>Layer Helper</Description><Version>0.1</Version><Image>Images\maps-and-geolocation-layers-icon.png</Image><Author>James Stephaniuk</Author><Company /><Date>12/11/2015</Date><Targets><Target name="Desktop" version="10.2" /></Targets><AddIn language="PYTHON" library="Layers_addin.py" namespace="Layers_addin"><ArcMap>
     <Commands>
         <Button caption="Reset Layers" category="Layer Helper" class="ResetLayers" id="Layers_addin.resetLayers" image="Images\computerscreen5.png" message="Reset all layers to default properties." tip="Reset Layers"><Help heading="Reset Layers">Reset all layers to default properties, symbology, visibility, definition query and, transparency.</Help></Button>
         <Button caption="Save Layers" category="Layer Helper" class="SaveLayers" id="Layers_addin.saveLayers" image="Images\maps-and-geolocation-layers-icon.png" message="If layers states have been changed, press this button to save." tip="Save Layers"><Help heading="Save Layers States">Upon altering an attribute of any layer, press this button to save the changes to a layer file.</Help></Button>
@@ -8,9 +8,9 @@
         <Extension autoLoad="true" category="Layer Helper" class="LayerHelper" description="Automatically load saved layer files for MXD, if any, when the ddp is changed." id="Layers_addin.layerHelper_1" name="Layer Helper" productName="Layer Helper" showInExtensionDialog="true" />
         </Extensions>
     <Toolbars>
-        <Toolbar caption="Layer Helper" category="Layer Helper" id="Layers_addin.layerHelper" showInitially="true"><Items><Menu refID="Layers_addin.layerMenu" /></Items></Toolbar>
+        <Toolbar caption="Layer Helper" category="Layer Helper" id="Layers_addin.layer_helper" showInitially="true"><Items><Menu refID="Layers_addin.layer_menu" /></Items></Toolbar>
         </Toolbars>
     <Menus>
-        <Menu caption="Layer Menu" category="Layer Helper" id="Layers_addin.layerMenu" isRootMenu="false" isShortcutMenu="false" separator="false"><Items><Button refID="Layers_addin.resetLayers" /><Button refID="Layers_addin.saveLayers" /><Button refID="Layers_addin.RestoreLayers" /></Items></Menu>
+        <Menu caption="Layer" category="Layer Helper" id="Layers_addin.layer_menu" isRootMenu="false" isShortcutMenu="false" separator="true"><Items><Button refID="Layers_addin.resetLayers" /><Button refID="Layers_addin.saveLayers" /><Button refID="Layers_addin.RestoreLayers" /></Items></Menu>
         </Menus>
     </ArcMap></AddIn></ESRI.Configuration>

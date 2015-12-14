@@ -12,7 +12,8 @@ class LayerHelper(object):
         # For performance considerations, please remove all unused methods in this class.
         self.enabled = True
     def pageIndexExtentChanged(self, new_id):
-        RestoreLayers.onClick()
+        restoreLyrs = RestoreLayers()
+        restoreLyrs.onClick()
 
 class ResetLayers(object):
     """Implementation for Layers_addin.resetLayers (Button)"""

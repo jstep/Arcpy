@@ -86,7 +86,7 @@ class GenerateTiledAnno(object):
         tileIndexPoly = arcpy.mapping.ListLayers(mxd, indexLyrName)[0]
 
         parentDir = os.path.abspath(os.path.join(os.path.dirname(mxd.filePath), os.pardir))
-        workspace = arcpy.env.workspace = os.path.join(parentDir, "anno_fgdb")
+        workspace = arcpy.env.workspace = os.path.join(parentDir, pageName, "anno_fgdb")
 
         for df in onMapDFs:
             # arcpy.activeView = df.name
@@ -126,4 +126,4 @@ class GenerateTiledAnno(object):
                 if count == 0:
                     arcpy.mapping.RemoveLayer(df, group)
 
-        del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, indexLyrName, lyr, mxd, onMapDFs, pageName, parentDir, tileIndexPoly, group, groupLayers, count
+        del anno_suffix, ddp, df, df_lst, fgdb, GroupAnno, indexLyrName, lyr, mxd, onMapDFs, pageName, parentDir, tileIndexPoly, groupLayers
