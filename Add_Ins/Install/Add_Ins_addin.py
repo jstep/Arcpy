@@ -3,12 +3,15 @@ import json
 import os
 import pythonaddins
 
+mxd = arcpy.mapping.MapDocument("CURRENT")
+dataframeList = arcpy.mapping.ListDataFrames(mxd)
+
 ###################### Function Definitions #################################
 
 def arrangeDFs(row, dfIndex, dfName):
   """Function that arranges data frames based on the field info within the PageLayoutElements table. List order must match setDF order."""          
   try:
-    mxd = arcpy.mapping.MapDocument("CURRENT")
+    
     rowInfo = json.loads(row.getValue(dfName))
     df = arcpy.mapping.ListDataFrames(mxd, dfName)[0]
     nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "*north*")
@@ -47,35 +50,81 @@ def arrangeDFs(row, dfIndex, dfName):
 
   return
 
-# def fetchFGDB():
-#     pass
+def fetchFGDB(df):
+    """Function to retrieve annotation file geodatabase for current ddp enabled map.\n
+    Args:
+        df (DataFrame object): A variable that references a DataFrame object.\n
+    Returns:
+        None: Returns NoneType.
+    """
+    mxd = arcpy.mapping.MapDocument("CURRENT")
+    ddp = mxd.dataDrivenPages
+    pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
+
+    annoFolderName = "anno_fgdb" # This needs to match the folder name from the annotation creation script (Annotation_Cmd.py)
+    arcpy.env.workspace = annoDir = os.path.abspath(os.path.join(os.path.dirname(mxd.filePath), os.pardir, pageName, annoFolderName))
+ 
+    workspace = os.path.join(annoDir, "{0}_{1}_{2}.gdb".format(pageName, df.name, str(int(round(df.scale)))))
+    if os.path.exists(workspace):
+      for (dirpath, dirnames, filenames) in arcpy.da.Walk(workspace):
+          for filename in filenames: 
+            annoPath = os.path.join(workspace,filename) 
+            temp_layer = "ANNO_" + filename # name of anno layer e.g. CanadaP_In_1100000.
+            arcpy.MakeFeatureLayer_management(annoPath, temp_layer)
+            annoLyr = arcpy.mapping.Layer(temp_layer)
+            arcpy.mapping.AddLayer(df, annoLyr, "TOP") 
+            # del temp_layer
+    return
+
+def removeAnno():
+    """Function to remove all annotation from table of contents.\n
+    Args:
+        None.\n
+    Returns:
+        None: Returns NoneType.
+    """
+    # Remove existing anno features from T.O.C.
+    annoLyrs = arcpy.mapping.ListLayers(mxd, "*anno*")
+    for df in arcpy.mapping.ListDataFrames(mxd):
+        for lyr in annoLyrs:
+            arcpy.mapping.RemoveLayer(df,lyr)
+    return
+
 
 def resetLayoutItems():
     mxd = arcpy.mapping.MapDocument("CURRENT")
     df_lst = arcpy.mapping.ListLayoutElements(mxd, "DATAFRAME_ELEMENT")
     insetDF_lst = arcpy.mapping.ListDataFrames(mxd, "*Inset*")
-    bottomMarginElems = [item0 for item0 in arcpy.mapping.ListLayoutElements(mxd) if (item0.elementPositionY >= 0.5 and item0.elementPositionY <  3.0)]
-    topMarginElems = [item1 for item1 in arcpy.mapping.ListLayoutElements(mxd) if item1.elementPositionY > 69.0 and item1.elementPositionY <  72.0]
-    lstTopBottomDF = df_lst + insetDF_lst + bottomMarginElems + topMarginElems
-    outsideMarginElems = [item2 for item2 in arcpy.mapping.ListLayoutElements(mxd) if item2 not in lstTopBottomDF]
+    nArrowLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*North*") + arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT", "*north*")
+    scaleTextLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale text*")
+    scaleBarLst = arcpy.mapping.ListLayoutElements(mxd, "MAPSURROUND_ELEMENT", "*Scale bar*")
+    scaleNorth = nArrowLst + scaleTextLst + scaleBarLst
 
-    # Reset index data frames.
+    # Reset inset data frames.
     for index, inset in enumerate(insetDF_lst):
         inset.elementPositionX = -5.0
         inset.elementPositionY = 0.0 + (inset.elementHeight * int(index)) + (int(index) * 0.5)
         inset.elementHeight = 4.0
         inset.elementWidth = 4.0
-        for i, elem in enumerate(outsideMarginElems):
+        for i, elem in enumerate(scaleTextLst):
+            if hasattr(elem, 'parentDataFrameName'):
+                if elem.parentDataFrameName == inset.name:
+                    elem.elementPositionX = inset.elementPositionX - 3.0
+                    elem.elementPositionY = inset.elementPositionY + ((inset.elementHeight / 2) + 1.0)
+        for i, elem in enumerate(scaleBarLst):
             if hasattr(elem, 'parentDataFrameName'):
                 if elem.parentDataFrameName == inset.name:
                     elem.elementPositionX = inset.elementPositionX - 3.0
                     elem.elementPositionY = inset.elementPositionY + (inset.elementHeight / 2)
 
+        nArrowLst[index].elementPositionX = inset.elementPositionX - 4.0
+        nArrowLst[index].elementPositionY = inset.elementPositionY + (inset.elementHeight / 2)
+                
     # Move SVA box and items off the page.
-    svaLst = arcpy.mapping.ListLayoutElements(mxd, wildcard="*SVA*")
-    for item in svaLst:
-        item.elementPositionX = mxd.pageSize[0] + 2.0
-        item.elementPositionY = 5.0
+    # svaLst = arcpy.mapping.ListLayoutElements(mxd, wildcard="*SVA*")
+    # for item in svaLst:
+    #     item.elementPositionX = mxd.pageSize[0] + 2.0
+    #     item.elementPositionY = 5.0
 
 def svaBoxAdjust():
     # Author: James Stephaniuk
@@ -85,7 +134,7 @@ def svaBoxAdjust():
 
     mxd = arcpy.mapping.MapDocument("CURRENT")
     ddp = mxd.dataDrivenPages
-    pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # e.g. VMP
+    pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
     pageNameField = ddp.pageNameField.name # edabbr
 
     # Feature class name.
@@ -216,7 +265,7 @@ class DDP_Layout(object):
         # Reference MXD
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         pageNameField = ddp.pageNameField.name # edabbr
         #Reference pageLayoutTable
         pageLayoutTable = arcpy.mapping.ListTableViews(mxd, "PageLayoutElements")[0]
@@ -234,7 +283,7 @@ class DDP_Layout(object):
         # Reference MXD
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         pageNameField = ddp.pageNameField.name # edabbr
         #Reference pageLayoutTable
         pageLayoutTable = arcpy.mapping.ListTableViews(mxd, "PageLayoutElements")[0]
@@ -254,68 +303,15 @@ class LoadFGDBs(object):
         self.enabled = True
         self.checked = False
     def onClick(self):
-        # fetchFGDB()
-
-        def fetchFGDB(df, baseDirectory, dfName):
-            """Function to retrieve annotation file geodatabase for current ddp enabled map.\n
-            Args:
-              df (DataFrame object): A variable that references a DataFrame object.\n
-              dfName (String): Name of data frame to locate folder containing file geodatabases.\n
-
-            Returns:
-              None: Returns NoneType.
-
-            """
-            try:
-              # dfScale = int(round(df.scale))
-              arcpy.env.workspace = os.path.join(baseDirectory, dfName + " Anno GDBs")
-              targetGDB = arcpy.ListFiles("*" + pageName + "*" )[0] # + str(dfScale) + "*" ### Only list files that contain current edabbr and end in dataframe's scale.
-              workspace = os.path.join(arcpy.env.workspace, targetGDB) 
-              for (dirpath, dirnames, filenames) in arcpy.da.Walk(workspace):
-                  for filename in filenames: 
-                    annoPath = os.path.join(workspace,filename) 
-                    temp_layer = "ANNO_" + filename # name of anno layer e.g. CanadaP_In_1100000.
-                    arcpy.MakeFeatureLayer_management(annoPath, temp_layer)
-                    annoLyr = arcpy.mapping.Layer(temp_layer)
-                    target_group = arcpy.mapping.ListLayers(mxd, "Anno*", df)[0]
-                    arcpy.mapping.AddLayerToGroup(df, target_group, annoLyr, "TOP") 
-                    # del temp_layer
-              return None
-            except Exception as e:
-              print e
-
-
-        ########################################################################################
-
-        mxd = arcpy.mapping.MapDocument("CURRENT")
-        ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # E.g. ABM
-        pageNameField = ddp.pageNameField.name # edabbr
-        dfLst = arcpy.mapping.ListDataFrames(mxd)
-
-        baseDir = False
-        while baseDir == False: 
-            baseDir = pythonaddins.OpenDialog("Select Path to Annotation FGDB", False, r"P:\15030_32_EBC_Digital_Mapping\MapData\2015 By Election Data\Anno GDBs", "Select")
-
         # Environment settings.
         arcpy.env.overwriteOutput = True
         arcpy.env.addOutputsToMap = False
 
-        annoGroups = arcpy.mapping.ListLayers(mxd, "*anno*")
-        # Clear contents from annotation group layers for each dataframe.
-        for df in dfLst:
-          for group in annoGroups:
-            name = group.name
-            for lyr in group:
-                arcpy.mapping.RemoveLayer(df,lyr)
+        # Remove existing anno features from T.O.C.
+        removeAnno()
 
-        try:
-            # Execute fetchFGDB on each data frame.
-            for df in dfLst:
-                fetchFGDB(df, baseDir, df.name)
-        except Exception as e:
-            pythonaddins.MessageBox(e, "Error Message")
-            print e
+        for df in arcpy.mapping.ListDataFrames(mxd):
+            fetchFGDB(df)
 
 class RecordLayout(object):
     """Implementation for Add_Ins_addin.recordLayout (Button)"""
@@ -350,8 +346,9 @@ class RecordLayout(object):
         #Reference mxd, ddp objects.
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name) # E.g. ABM
-        pageNameField = ddp.pageNameField.name # edabbr
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
+        pageNameField = str(ddp.pageNameField.name) 
+        df_lst = arcpy.mapping.ListDataFrames(mxd)
 
         # Assign a unique to each element of the MXD.
         # mxd = arcpy.mapping.ListLayoutElements(mxd)
@@ -369,10 +366,11 @@ class RecordLayout(object):
           if pageLayoutRow == None:               #INSERT A NEW ROW - INSERT CURSOR
             pageInsertCursor = arcpy.InsertCursor(pageLayoutTable.dataSource)
             pageInsertRow = pageInsertCursor.newRow()
-            pageInsertRow.edabbr = pageName
+            pageInsertRow.setValue(pageNameField, pageName)
+            # pageInsertRow.bldgsectid = pageName
 
             #Set Data Frame information
-            for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):
+            for dfIndex, df in enumerate(df_lst):
               # if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
                 pageInsertRow.setValue(df.name, setDF(dfIndex, df)) # Data frame name must match P.L.E. column name in order to write to it.
                  
@@ -384,9 +382,9 @@ class RecordLayout(object):
             pageUpdateRow = pageUpdateCursor.next()
 
             #Set Data Frame information
-            for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):
-              # if (df.elementPositionX > 0 and df.elementPositionX < mxd.pageSize[0]) and (df.elementPositionY > 0 and df.elementPositionY < mxd.pageSize[1]):  #don't set values if DF is off the page
-                pageUpdateRow.setValue(df.name, setDF(dfIndex, df)) # Data frame name must match P.L.E. column name in order to write to it.
+            for dfIndex, df in enumerate(df_lst):
+              # Data frame name must match P.L.E. column name in order to write to it.
+                pageUpdateRow.setValue(df.name, setDF(dfIndex, df)) 
                        
             
             pageUpdateCursor.updateRow(pageUpdateRow)
@@ -412,15 +410,10 @@ class RestoreLayout(object):
         # Reference MXD
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         pageNameField = ddp.pageNameField.name # edabbr
         #Reference pageLayoutTable
         pageLayoutTable = arcpy.mapping.ListTableViews(mxd, "PageLayoutElements")[0]
-
-        # Reset all data frames and layout elements.
-        # reset = ResetLayout()
-        # reset.onClick()
-
         pageLayoutCursor = arcpy.SearchCursor(pageLayoutTable.dataSource, "\"" + pageNameField + "\" = '" + pageName + "'")
         pageLayoutRow = pageLayoutCursor.next()
         for dfIndex, df in enumerate(arcpy.mapping.ListDataFrames(mxd)):

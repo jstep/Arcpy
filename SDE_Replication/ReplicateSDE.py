@@ -112,7 +112,8 @@ layerNameLst = [
                 'indea:mdwilkie.indea_background_ebc_ocean_active',
                 'indea:mdwilkie.indea_background_ebc_islands_active',
                 'indea:mdwilkie.indea_background_ebc_parks_active',
-                'indea:genmaint.cart_ebc_water_features_streams_tab'
+                'indea:genmaint.cart_ebc_water_features_streams_tab',
+                'indea:genmaint.indea_background_ebc_external_transparency_active'
                 ]
 
 if __name__ == "__main__":

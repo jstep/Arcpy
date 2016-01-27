@@ -15,7 +15,7 @@ class ExtentBoxes(object):
         # Restore Page Layout (from PageLayoutElements table) before running this script.
         mxd = arcpy.mapping.MapDocument('CURRENT')
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         df_lst = arcpy.mapping.ListDataFrames(mxd)
         onMapDFs = []
         # List of data frames on the current page.
@@ -57,7 +57,7 @@ class ExtentBoxes(object):
 
         # Create FGDB(s).
         for df in onMapDFs:
-            arcpy.CreateFileGDB_management(workspace, "{}_{}_{}".format(pageName, df.name, str(int(round(df.scale)))), "CURRENT")
+            arcpy.CreateFileGDB_management(workspace, "{}_{}_{}_extentBoxes".format(pageName, df.name, str(int(round(df.scale)))), "CURRENT")
 
         del coords, feature_info, features, feature, poly_filename, outDir, mxd, df_lst, df_info, df, XMax, XMin, YMax, YMin, ddp, pageName 
 
@@ -72,7 +72,7 @@ class GenerateTiledAnno(object):
 
         mxd = arcpy.mapping.MapDocument("CURRENT")
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         df_lst = arcpy.mapping.ListDataFrames(mxd)
         onMapDFs = []
         # List of data frames on the current page.
@@ -91,7 +91,7 @@ class GenerateTiledAnno(object):
         for df in onMapDFs:
             # arcpy.activeView = df.name
             try:
-                fgdb = os.path.join(workspace, "{}_{}_{}.gdb".format(pageName, str(df.name), int(round(df.scale))))
+                fgdb = os.path.join(workspace, "{}_{}_{}_extentBoxes.gdb".format(pageName, str(df.name), int(round(df.scale))))
                 if os.path.exists(fgdb):
                     arcpy.TiledLabelsToAnnotation_cartography(
                         mxd.filePath,

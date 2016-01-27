@@ -47,7 +47,7 @@ def exporter(mxdPath, user_dpi):
         dpi = user_dpi
         colorspace = "CMYK"
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         
         log.info("MXD path: {}".format(mxd.filePath))
         log.info("DPI: {}".format(str(dpi)))
@@ -102,7 +102,7 @@ def getPageName(mxdPath):
     mxd = arcpy.mapping.MapDocument(mxdPath)
     ddp = mxd.dataDrivenPages
     pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
-    return pageName
+    return str(pageName)
 
 ##############################################################################
 

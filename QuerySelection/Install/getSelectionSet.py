@@ -17,7 +17,7 @@ def getSelectionSet():
                         if desc.FIDSet:
                             fidLst.append(desc.FIDSet)
                             lyrName = desc.nameString.split("\\")[-1] # Handles case of layers nested in groups. Gets lyr name minus the group name(s).
-                            OIDFieldName = desc.fieldInfo.getfieldname(0)
+                            OIDFieldName = desc.OIDFieldName
             except RuntimeError, TypeError:
                 pass
 

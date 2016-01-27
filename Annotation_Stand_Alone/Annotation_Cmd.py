@@ -1,18 +1,18 @@
 #############################################################################
 # The MIT License (MIT)
-# 
+#
 # Copyright (c) 2015 James Stephaniuk
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 #############################################################################
-# Usage: Run this script from the command line.             
+# Usage: Run this script from the command line.
 # Navigate to this script's folder in the command line and type:
 # python [script name] "[mxd path]".
 #
@@ -45,7 +45,7 @@ def createExtentBoxes(mxdPath):
         # Restore Page Layout (from PageLayoutElements table) before running this script.
         mxd = arcpy.mapping.MapDocument(mxdPath)
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
         df_lst = arcpy.mapping.ListDataFrames(mxd)
 
         log.info("MXD path: {}".format(mxd.filePath))
@@ -61,10 +61,10 @@ def createExtentBoxes(mxdPath):
         feature_info = []
         for df in onMapDFs:
             # Only creates geometry for data frames on the page. Also creates FGDB.
-            XMin = df.extent.XMin 
-            YMin = df.extent.YMin 
-            XMax = df.extent.XMax 
-            YMax = df.extent.YMax 
+            XMin = df.extent.XMin
+            YMin = df.extent.YMin
+            XMax = df.extent.XMax
+            YMax = df.extent.YMax
             # A list of features and coordinate pairs
             df_info = [[XMin, YMin],[XMax, YMin],[XMax, YMax],[XMin, YMax]]
             feature_info.append(df_info)
@@ -75,7 +75,7 @@ def createExtentBoxes(mxdPath):
             # Create a Polygon object based on the array of points
             # Append to the list of Polygon objects
             features.append(arcpy.Polygon(arcpy.Array([arcpy.Point(*coords) for coords in feature])))
-            
+
 
         # Persist a copy of the Polygon objects using CopyFeatures
         poly_filename = "DF_Polygons_{}".format(pageName)
@@ -106,7 +106,7 @@ def createExtentBoxes(mxdPath):
             arcpy.CreateFileGDB_management(workspace, "{}_{}_{}".format(pageName, df.name, str(int(round(df.scale)))), "CURRENT")
             log.info("FGDB created: {}".format(fgdb))
 
-        del coords, feature_info, features, feature, poly_filename, outDir, mxd, df_lst, df_info, df, XMax, XMin, YMax, YMin, ddp, pageName 
+        del coords, feature_info, features, feature, poly_filename, outDir, mxd, df_lst, df_info, df, XMax, XMin, YMax, YMin, ddp, pageName
     except Exception as e:
         log.info("An error occured: {}".format(e))
 
@@ -114,20 +114,8 @@ def generateTiledAnno(mxdPath):
 
     mxd = arcpy.mapping.MapDocument(mxdPath)
     ddp = mxd.dataDrivenPages
-    pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+    pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
     df_lst = arcpy.mapping.ListDataFrames(mxd)
-
-    # TODO:
-    # Switch on standard labels (from predefined list)
-    # e.g.
-    # layersToLabel = [
-                # 'ED Boundary',
-                # 'Indian Reserve',
-                # 'Parks',
-                # 'Roads Internal Left'
-                # ]
-                # etc...
-
 
     # List of data frames on the current page.
     onMapDFs = []
@@ -179,7 +167,7 @@ def generateTiledAnno(mxdPath):
     #             arcpy.mapping.RemoveLayer(df, lyr)
 
     #     # Remove empty annotation groups.
-    #     groupLayers = [x for x in arcpy.mapping.ListLayers(mxd) if x.isGroupLayer and GroupAnno in x.name] 
+    #     groupLayers = [x for x in arcpy.mapping.ListLayers(mxd) if x.isGroupLayer and GroupAnno in x.name]
     #     for group in groupLayers:
     #         count = 0
     #         for item in group:
@@ -204,7 +192,7 @@ def getPageName(mxdPath):
     mxd = arcpy.mapping.MapDocument(mxdPath)
     ddp = mxd.dataDrivenPages
     pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
-    return pageName
+    return str(pageName)
 
 ##############################################################################
 

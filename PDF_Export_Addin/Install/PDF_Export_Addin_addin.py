@@ -6,7 +6,7 @@ def exporter(colorspace, dpi):
     try:
         mxd = arcpy.mapping.MapDocument('CURRENT')
         ddp = mxd.dataDrivenPages
-        pageName = ddp.pageRow.getValue(ddp.pageNameField.name)
+        pageName = str(ddp.pageRow.getValue(ddp.pageNameField.name))
 
         curDirPath = os.path.dirname(mxd.filePath)
         parDirPath = os.path.abspath(os.path.join(curDirPath, os.pardir))
